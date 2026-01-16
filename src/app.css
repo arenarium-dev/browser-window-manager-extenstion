@@ -1,0 +1,72 @@
+/* ========================================
+   Tab Tree Manager - Global Styles
+   ======================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600&display=swap');
+
+:root {
+	/* Monokai-inspired palette */
+	--bg-primary: #1e1f1c;
+	--bg-secondary: #272822;
+	--bg-tertiary: #3e3d32;
+	--bg-hover: #49483e;
+
+	--text-primary: #f8f8f2;
+	--text-secondary: #a6a69c;
+	--text-muted: #75715e;
+
+	--accent-pink: #f92672;
+	--accent-green: #a6e22e;
+	--accent-yellow: #e6db74;
+	--accent-blue: #66d9ef;
+	--accent-purple: #ae81ff;
+	--accent-orange: #fd971f;
+
+	/* Semantic colors */
+	--window-color: var(--accent-blue);
+	--group-color: var(--accent-purple);
+	--tab-color: var(--text-secondary);
+	--active-tab-color: var(--accent-green);
+
+	/* Spacing */
+	--spacing-xs: 4px;
+	--spacing-sm: 8px;
+	--spacing-md: 12px;
+	--spacing-lg: 16px;
+	--spacing-xl: 20px;
+
+	/* Border radius */
+	--radius-sm: 4px;
+	--radius-md: 8px;
+	--radius-lg: 12px;
+
+	/* Transitions */
+	--transition-fast: 120ms ease-out;
+	--transition-normal: 200ms ease-out;
+}
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body {
+	font-family:
+		'Outfit',
+		-apple-system,
+		BlinkMacSystemFont,
+		sans-serif;
+	font-size: 13px;
+	background: var(--bg-primary);
+	color: var(--text-primary);
+	width: 380px;
+	min-height: 400px;
+	max-height: 600px;
+	overflow: hidden;
+}
+
+/* Global utility */
+.hidden {
+	display: none !important;
+}

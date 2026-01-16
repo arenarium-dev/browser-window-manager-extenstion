@@ -1,0 +1,11 @@
+{
+	"manifest_version": 3,
+	"name": "Tab Manager",
+	"version": "1.0.0",
+	"description": "View and manage your windows, tabs, and tab groups",
+	"permissions": ["tabs", "tabGroups"],
+	"action": {
+		"default_popup": "index.html",
+		"default_title": "Tab Manager"
+	}
+}
