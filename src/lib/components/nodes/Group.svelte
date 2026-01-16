@@ -1,7 +1,9 @@
 <script lang="ts">
-	import TabNode from "$lib/components/nodes/Tab.svelte";
+	import TabNode from '$lib/components/nodes/Tab.svelte';
 
-	import type { TabGroupInfo, TabInfo } from "$lib/core/types";
+	import { ChevronDown } from 'lucide-svelte';
+
+	import type { TabGroupInfo, TabInfo } from '$lib/core/types';
 
 	interface Props {
 		group: TabGroupInfo;
@@ -17,7 +19,9 @@
 	let visibleTabs = $derived.by(() => {
 		if (!searchQuery.trim()) return tabs;
 		const query = searchQuery.toLowerCase();
-		return tabs.filter((tab) => tab.title.toLowerCase().includes(query) || tab.url.toLowerCase().includes(query));
+		return tabs.filter(
+			(tab) => tab.title.toLowerCase().includes(query) || tab.url.toLowerCase().includes(query)
+		);
 	});
 
 	let hasVisibleContent = $derived(visibleTabs.length > 0);
@@ -37,9 +41,7 @@
 
 <div class="group-node" class:collapsed class:hidden={!hasVisibleContent}>
 	<button class="header" onclick={onToggle}>
-		<svg class="expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-			<polyline points="6 9 12 15 18 9"></polyline>
-		</svg>
+		<ChevronDown class="expand-icon" size={14} />
 		<div class="color-dot" style="color: {group.color}"></div>
 		<span class="label" style="color: {group.color}">{group.title}</span>
 		<span class="badge">{tabs.length}</span>
@@ -87,15 +89,13 @@
 		background: linear-gradient(90deg, rgba(174, 129, 255, 0.12) 0%, var(--bg-hover) 100%);
 	}
 
-	.expand-icon {
-		width: 14px;
-		height: 14px;
+	:global(.expand-icon) {
 		flex-shrink: 0;
 		color: var(--text-muted);
 		transition: transform var(--transition-fast);
 	}
 
-	.collapsed .expand-icon {
+	.collapsed :global(.expand-icon) {
 		transform: rotate(-90deg);
 	}
 

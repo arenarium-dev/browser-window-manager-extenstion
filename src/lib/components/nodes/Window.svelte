@@ -2,6 +2,8 @@
 	import GroupNode from '$lib/components/nodes/Group.svelte';
 	import TabNode from '$lib/components/nodes/Tab.svelte';
 
+	import { ChevronDown, AppWindow } from 'lucide-svelte';
+
 	import { organizeTabsByGroups } from '$lib/core/chrome';
 	import type { WindowInfo, TabInfo, TabGroupInfo } from '$lib/core/types';
 
@@ -62,14 +64,9 @@
 
 <div class="window-node" class:collapsed class:hidden={!hasVisibleContent}>
 	<button class="header" class:focused={windowInfo.focused} onclick={onToggle}>
-		<svg class="expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-			<polyline points="6 9 12 15 18 9"></polyline>
-		</svg>
+		<ChevronDown class="expand-icon" size={14} />
 
-		<svg class="window-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-			<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-			<line x1="3" y1="9" x2="21" y2="9"></line>
-		</svg>
+		<AppWindow class="window-icon" size={16} />
 
 		<span class="label">
 			{`Window ${index + 1}`}
@@ -156,21 +153,17 @@
 		box-shadow: 0 0 6px var(--accent-green);
 	}
 
-	.expand-icon {
-		width: 14px;
-		height: 14px;
+	:global(.expand-icon) {
 		flex-shrink: 0;
 		color: var(--text-muted);
 		transition: transform var(--transition-fast);
 	}
 
-	.collapsed .expand-icon {
+	.collapsed :global(.expand-icon) {
 		transform: rotate(-90deg);
 	}
 
-	.window-icon {
-		width: 16px;
-		height: 16px;
+	:global(.window-icon) {
 		color: var(--window-color);
 		flex-shrink: 0;
 	}
