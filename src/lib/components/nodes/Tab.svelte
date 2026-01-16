@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { File } from 'lucide-svelte';
-	
+	import { Globe } from 'lucide-svelte';
+
 	import { switchToTab } from '$lib/core/chrome';
 	import type { TabInfo } from '$lib/core/types';
 
@@ -47,91 +47,66 @@
 	}
 </script>
 
-<button class="tab-node" class:in-group={inGroup} class:hidden={!isVisible} onclick={onClick}>
-	<div class="header">
-		{#if showFavicon}
-			<img class="favicon" src={tab.icon} alt="" onerror={handleFaviconError} />
+<button class="tab" class:in-group={inGroup} class:hidden={!isVisible} onclick={onClick}>
+	{#if showFavicon}
+		<img class="favicon" src={tab.icon} alt="" onerror={handleFaviconError} />
+	{:else}
+		<Globe size={16} color="var(--text-secondary)" />
+	{/if}
+	<span class="title" title="{tab.title}\n{tab.url}">
+		{#if typeof highlightedTitle === 'string'}
+			{highlightedTitle}
 		{:else}
-			<File class="favicon-placeholder" size={16} />
+			{highlightedTitle.before}<span class="highlight">{highlightedTitle.match}</span
+			>{highlightedTitle.after}
 		{/if}
-
-		<span class="title" title="{tab.title}\n{tab.url}">
-			{#if typeof highlightedTitle === 'string'}
-				{highlightedTitle}
-			{:else}
-				{highlightedTitle.before}<span class="highlight">{highlightedTitle.match}</span
-				>{highlightedTitle.after}
-			{/if}
-		</span>
-	</div>
+	</span>
 </button>
 
 <style lang="less">
-	.tab-node {
+	.tab {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-sm);
 		user-select: none;
-		margin-left: calc(var(--spacing-lg) * 2);
-		animation: fadeIn var(--transition-normal) ease-out;
-		animation-fill-mode: backwards;
+		padding: var(--spacing-xs) var(--spacing-lg);
+		padding-left: var(--spacing-sm);
+		background-color: var(--bg-secondary);
+		border-radius: var(--radius-md);
+		border: none;
+		cursor: pointer;
+		transition: background var(--transition-fast);
 
-		&.in-group {
-			margin-left: var(--spacing-lg);
+		.favicon {
+			width: 16px;
+			height: 16px;
+			flex-shrink: 0;
+			border-radius: 2px;
+			object-fit: contain;
 		}
 
-		.header {
-			display: flex;
-			align-items: center;
-			gap: var(--spacing-sm);
-			padding: var(--spacing-xs) var(--spacing-lg);
-			padding-left: var(--spacing-md);
-			cursor: pointer;
-			transition: background var(--transition-fast);
-			border-left: 2px solid transparent;
-			position: relative;
+		.title {
+			flex: 1;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			color: var(--text-secondary);
+			font-size: 12px;
 
-			&:hover {
-				background: var(--bg-hover);
-				border-left-color: var(--text-muted);
-			}
-
-			.favicon {
-				width: 16px;
-				height: 16px;
-				flex-shrink: 0;
+			.highlight {
+				background: rgba(230, 219, 116, 0.3);
+				color: var(--accent-yellow);
+				padding: 0 2px;
 				border-radius: 2px;
-				object-fit: contain;
 			}
+		}
+
+		&:hover {
+			background: var(--bg-hover);
 
 			.title {
-				flex: 1;
-				white-space: nowrap;
-				overflow: hidden;
-				text-overflow: ellipsis;
-				color: var(--text-secondary);
-				font-size: 12px;
-
-				.highlight {
-					background: rgba(230, 219, 116, 0.3);
-					color: var(--accent-yellow);
-					padding: 0 2px;
-					border-radius: 2px;
-				}
+				color: var(--text-primary);
 			}
 		}
-	}
-
-	@keyframes fadeIn {
-		from {
-			opacity: 0;
-			transform: translateY(-4px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
-	}
-
-	:global(.favicon-placeholder) {
-		flex-shrink: 0;
-		color: var(--text-muted);
 	}
 </style>

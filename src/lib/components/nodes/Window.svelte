@@ -66,10 +66,9 @@
 <div class="window" class:collapsed class:hidden={!hasVisibleContent}>
 	<button class="header" class:focused={windowInfo.focused} onclick={onToggle}>
 		<div class="icon">
-			<ChevronDown size={14} color="var(--text-muted)" />
+			<ChevronDown size={16} />
 		</div>
 		<span class="label">{`Window ${index + 1}`}</span>
-		<Stats windows={0} groups={windowInfo.groups.size} tabs={windowInfo.tabs.length} />
 	</button>
 
 	<div class="children">
@@ -86,39 +85,52 @@
 <style lang="less">
 	.window {
 		width: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: start;
+		gap: var(--spacing-sm);
 
 		.header {
-			height: 36px;
 			width: 100%;
 			display: flex;
 			align-items: center;
-			gap: var(--spacing-xl);
-			padding: 0 var(--spacing-md);
+			gap: var(--spacing-sm);
+			padding: var(--spacing-xs) 0;
+			padding-left: var(--spacing-sm);
+			background-color: var(--bg-secondary);
+			border: 2px solid var(--text-primary);
+			border-radius: var(--radius-md);
+			font-size: 12px;
 			cursor: pointer;
 			transition: background var(--transition-fast);
-			background: var(--bg-primary);
-			border: none;
-			border-bottom: 1px solid var(--bg-tertiary);
 
 			.icon {
 				display: flex;
-				color: var(--text-secondary);
+				color: var(--text-primary);
 				pointer-events: none;
 				transition: transform var(--transition-fast);
 			}
 
 			.label {
 				flex-grow: 1;
-				font-size: 14px;
-				color: var(--text-secondary);
+				color: var(--text-primary);
 				white-space: nowrap;
 				overflow: hidden;
 				text-align: start;
 				text-overflow: ellipsis;
 			}
+
+			&:hover {
+				background-color: var(--bg-tertiary);
+			}
 		}
 
 		.children {
+			display: flex;
+			flex-direction: column;
+			align-items: start;
+			gap: var(--spacing-xs);
+			padding-left: var(--spacing-md);
 			overflow: hidden;
 		}
 
@@ -128,7 +140,7 @@
 			}
 
 			.children {
-				max-height: 0 !important;
+				display: none;
 			}
 		}
 	}

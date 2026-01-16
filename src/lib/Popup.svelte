@@ -37,7 +37,7 @@
 <div class="container">
 	<header class="header">
 		<div class="icon">
-			<Search size={14} />
+			<Search size={16} />
 		</div>
 		<input
 			bind:this={searchInput}
@@ -46,9 +46,6 @@
 			class="search"
 			placeholder="Search..."
 		/>
-		{#if !loading && !error}
-			<Stats windows={windows.length} groups={totalGroups} tabs={totalTabs} />
-		{/if}
 	</header>
 
 	<div class="tree">
@@ -92,7 +89,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: var(--spacing-md);
+		gap: var(--spacing-sm);
 		padding: 0 var(--spacing-md);
 		border-bottom: 1px solid var(--bg-tertiary);
 		border-right: 4px solid var(--bg-tertiary);
@@ -110,7 +107,6 @@
 			border: none;
 			color: var(--text-primary);
 			font-family: inherit;
-			font-size: 14px;
 			outline: none;
 
 			&::placeholder {
@@ -122,6 +118,11 @@
 	.tree {
 		height: 100%;
 		flex-grow: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: start;
+		gap: var(--spacing-md);
+		padding: var(--spacing-md);
 		overflow-y: scroll;
 		overflow-x: hidden;
 

@@ -19,8 +19,6 @@
 
 <style lang="less">
 	.stats {
-		font-family: 'JetBrains Mono', monospace;
-		font-size: 12px;
 		color: var(--text-muted);
 		display: grid;
 		grid-template-columns: 30px 46px 30px 46px 30px 46px;
