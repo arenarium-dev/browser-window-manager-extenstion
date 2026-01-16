@@ -64,8 +64,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: start;
-		gap: var(--spacing-sm);
-		padding-top: var(--spacing-xs);
+		gap: var(--spacing-xs);
 		user-select: none;
 		animation: fadeIn var(--transition-normal) ease-out;
 		animation-fill-mode: backwards;
@@ -98,6 +97,10 @@
 				white-space: nowrap;
 				overflow: hidden;
 				text-overflow: ellipsis;
+			}
+
+			&:hover {
+				background-color: var(--bg-tertiary);
 			}
 		}
 
