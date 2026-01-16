@@ -66,16 +66,57 @@
 	</div>
 </button>
 
-<style>
+<style lang="less">
 	.tab-node {
 		user-select: none;
 		margin-left: calc(var(--spacing-lg) * 2);
 		animation: fadeIn var(--transition-normal) ease-out;
 		animation-fill-mode: backwards;
-	}
 
-	.tab-node.in-group {
-		margin-left: var(--spacing-lg);
+		&.in-group {
+			margin-left: var(--spacing-lg);
+		}
+
+		.header {
+			display: flex;
+			align-items: center;
+			gap: var(--spacing-sm);
+			padding: var(--spacing-xs) var(--spacing-lg);
+			padding-left: var(--spacing-md);
+			cursor: pointer;
+			transition: background var(--transition-fast);
+			border-left: 2px solid transparent;
+			position: relative;
+
+			&:hover {
+				background: var(--bg-hover);
+				border-left-color: var(--text-muted);
+			}
+
+			.favicon {
+				width: 16px;
+				height: 16px;
+				flex-shrink: 0;
+				border-radius: 2px;
+				object-fit: contain;
+			}
+
+			.title {
+				flex: 1;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				color: var(--text-secondary);
+				font-size: 12px;
+
+				.highlight {
+					background: rgba(230, 219, 116, 0.3);
+					color: var(--accent-yellow);
+					padding: 0 2px;
+					border-radius: 2px;
+				}
+			}
+		}
 	}
 
 	@keyframes fadeIn {
@@ -89,49 +130,8 @@
 		}
 	}
 
-	.header {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-sm);
-		padding: var(--spacing-xs) var(--spacing-lg);
-		padding-left: var(--spacing-md);
-		cursor: pointer;
-		transition: background var(--transition-fast);
-		border-left: 2px solid transparent;
-		position: relative;
-	}
-
-	.header:hover {
-		background: var(--bg-hover);
-		border-left-color: var(--text-muted);
-	}
-
-	.favicon {
-		width: 16px;
-		height: 16px;
-		flex-shrink: 0;
-		border-radius: 2px;
-		object-fit: contain;
-	}
-
 	:global(.favicon-placeholder) {
 		flex-shrink: 0;
 		color: var(--text-muted);
-	}
-
-	.title {
-		flex: 1;
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		color: var(--text-secondary);
-		font-size: 12px;
-	}
-
-	.highlight {
-		background: rgba(230, 219, 116, 0.3);
-		color: var(--accent-yellow);
-		padding: 0 2px;
-		border-radius: 2px;
 	}
 </style>
