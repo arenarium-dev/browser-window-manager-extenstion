@@ -2,7 +2,7 @@
 	import GroupNode from '$lib/components/nodes/Group.svelte';
 	import TabNode from '$lib/components/nodes/Tab.svelte';
 
-	import { ChevronDown, AppWindow } from 'lucide-svelte';
+	import { ChevronDown } from 'lucide-svelte';
 
 	import { organizeTabsByGroups } from '$lib/core/chrome';
 	import type { WindowInfo, TabInfo, TabGroupInfo } from '$lib/core/types';
@@ -62,18 +62,22 @@
 	}
 </script>
 
-<div class="window-node" class:collapsed class:hidden={!hasVisibleContent}>
+<div class="window" class:collapsed class:hidden={!hasVisibleContent}>
 	<button class="header" class:focused={windowInfo.focused} onclick={onToggle}>
-		<ChevronDown class="expand-icon" size={14} />
-
-		<AppWindow class="window-icon" size={16} />
-
-		<span class="label">
-			{`Window ${index + 1}`}
-			{windowInfo.focused ? ' (Current)' : ''}
-		</span>
-
-		<span class="badge">{windowInfo.tabs.length}</span>
+		<div class="icon">
+			<ChevronDown size={14} color="var(--text-muted)" />
+		</div>
+		<span class="label">{`Window ${index + 1}`}</span>
+		<div class="stats">
+			{#if windowInfo.groups.size > 0}
+				<span class="stat-item">
+					<span class="stat-value">{windowInfo.groups.size}</span> groups
+				</span>
+			{/if}
+			<span class="stat-item">
+				<span class="stat-value">{windowInfo.tabs.length}</span> tabs
+			</span>
+		</div>
 	</button>
 
 	<div class="children">
@@ -88,74 +92,65 @@
 </div>
 
 <style lang="less">
-	.window-node {
-		user-select: none;
-		animation: fadeIn var(--transition-normal) ease-out;
-		animation-fill-mode: backwards;
-
-		&:nth-child(1) { animation-delay: 0ms; }
-		&:nth-child(2) { animation-delay: 50ms; }
-		&:nth-child(3) { animation-delay: 100ms; }
-		&:nth-child(4) { animation-delay: 150ms; }
-		&:nth-child(5) { animation-delay: 200ms; }
+	.window {
+		width: 100%;
 
 		.header {
+			height: 36px;
+			width: 100%;
 			display: flex;
 			align-items: center;
-			gap: var(--spacing-sm);
-			padding: var(--spacing-sm) var(--spacing-lg);
+			gap: var(--spacing-xl);
+			padding: 0 var(--spacing-md);
 			cursor: pointer;
 			transition: background var(--transition-fast);
-			border-left: 2px solid var(--window-color);
-			background: linear-gradient(90deg, rgba(102, 217, 239, 0.08) 0%, transparent 100%);
+			background: var(--bg-primary);
+			border: none;
+			border-bottom: 1px solid var(--bg-tertiary);
 
-			&:hover {
-				background: linear-gradient(90deg, rgba(102, 217, 239, 0.15) 0%, var(--bg-hover) 100%);
-			}
-
-			&.focused {
-				position: relative;
-
-				&::after {
-					content: '';
-					position: absolute;
-					right: var(--spacing-lg);
-					top: 50%;
-					transform: translateY(-50%);
-					width: 6px;
-					height: 6px;
-					background: var(--accent-green);
-					border-radius: 50%;
-					box-shadow: 0 0 6px var(--accent-green);
-				}
+			.icon {
+				display: flex;
+				color: var(--text-muted);
+				pointer-events: none;
+				transition: transform var(--transition-fast);
 			}
 
 			.label {
-				font-weight: 500;
-				color: var(--window-color);
-				flex: 1;
+				flex-grow: 1;
+				font-size: 14px;
+				color: var(--text-primary);
 				white-space: nowrap;
 				overflow: hidden;
+				text-align: start;
 				text-overflow: ellipsis;
 			}
 
-			.badge {
+			.stats {
 				font-family: 'JetBrains Mono', monospace;
-				font-size: 10px;
-				padding: 2px 6px;
-				background: rgba(102, 217, 239, 0.15);
-				color: var(--window-color);
-				border-radius: var(--radius-sm);
+				font-size: 12px;
+				color: var(--text-muted);
+				display: flex;
+				gap: var(--spacing-md);
+
+				.stat-item {
+					display: flex;
+					align-items: center;
+					gap: var(--spacing-xs);
+
+					.stat-value {
+						color: var(--accent-blue);
+						font-weight: 500;
+					}
+				}
 			}
 		}
 
 		.children {
 			overflow: hidden;
-			transition: max-height var(--transition-normal);
 		}
 
 		&.collapsed {
-			:global(.expand-icon) {
+			.icon {
 				transform: rotate(-90deg);
 			}
 
@@ -163,27 +158,5 @@
 				max-height: 0 !important;
 			}
 		}
-	}
-
-	@keyframes fadeIn {
-		from {
-			opacity: 0;
-			transform: translateY(-4px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
-	}
-
-	:global(.expand-icon) {
-		flex-shrink: 0;
-		color: var(--text-muted);
-		transition: transform var(--transition-fast);
-	}
-
-	:global(.window-icon) {
-		color: var(--window-color);
-		flex-shrink: 0;
 	}
 </style>

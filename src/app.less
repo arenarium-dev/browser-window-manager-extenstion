@@ -1,8 +1,4 @@
-/* ========================================
-   Tab Tree Manager - Global Styles
-   ======================================== */
-
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap');
 
 :root {
 	/* Monokai-inspired palette */
@@ -40,6 +36,10 @@
 	--radius-md: 8px;
 	--radius-lg: 12px;
 
+	/* Size */
+	--app-width: 800px;
+	--app-height: 600px;
+
 	/* Transitions */
 	--transition-fast: 120ms ease-out;
 	--transition-normal: 200ms ease-out;
@@ -49,20 +49,19 @@
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
-}
-
-body {
 	font-family:
-		'Outfit',
+		'Roboto',
 		-apple-system,
 		BlinkMacSystemFont,
 		sans-serif;
+}
+
+body {
 	font-size: 13px;
 	background: var(--bg-primary);
 	color: var(--text-primary);
-	width: 800px;
-	min-height: 400px;
-	max-height: 600px;
+	width: var(--app-width);
+	height: var(--app-height);
 	overflow: hidden;
 }
 

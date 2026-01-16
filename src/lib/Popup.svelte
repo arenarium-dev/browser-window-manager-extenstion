@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	import { FolderTree, Search, SquareX } from 'lucide-svelte';
+	import { Search, SquareX } from 'lucide-svelte';
 
 	import WindowNode from '$lib/components/nodes/Window.svelte';
 
@@ -35,53 +35,48 @@
 
 <div class="container">
 	<header class="header">
-		<div class="logo">
-			<FolderTree size={20} />
-			<span class="text">Tab Manager</span>
+		<div class="icon">
+			<Search size={14} />
 		</div>
+		<input
+			bind:this={searchInput}
+			bind:value={searchQuery}
+			type="text"
+			class="search"
+			placeholder="Search..."
+		/>
 		<div class="stats">
 			{#if !loading && !error}
-				<span class="stat-item">
-					<span class="stat-value">{windows.length}</span> windows
+				<span class="item">
+					<span class="value">{windows.length}</span> windows
 				</span>
 				{#if totalGroups > 0}
-					<span class="stat-item">
-						<span class="stat-value">{totalGroups}</span> groups
+					<span class="item">
+						<span class="value">{totalGroups}</span> groups
 					</span>
 				{/if}
-				<span class="stat-item">
-					<span class="stat-value">{totalTabs}</span> tabs
+				<span class="item">
+					<span class="value">{totalTabs}</span> tabs
 				</span>
 			{/if}
 		</div>
 	</header>
 
-	<div class="search-container">
-		<Search class="search-icon" size={16} />
-		<input
-			bind:this={searchInput}
-			bind:value={searchQuery}
-			type="text"
-			class="search-input"
-			placeholder="Search tabs..."
-		/>
-	</div>
-
-	<div class="tree-container">
+	<div class="tree">
 		{#if loading}
 			<div class="loading">
-				<div class="loading-spinner"></div>
+				<div class="spinner"></div>
 				<span>Loading tabs...</span>
 			</div>
 		{:else if error}
-			<div class="empty-state">
-				<SquareX class="empty-state-icon" size={48} />
+			<div class="empty">
+				<SquareX class="icon" size={48} />
 				<span>Failed to load tabs</span>
 				<small>{error}</small>
 			</div>
 		{:else if windows.length === 0}
-			<div class="empty-state">
-				<SquareX class="empty-state-icon" size={48} />
+			<div class="empty">
+				<SquareX class="icon" size={48} />
 				<span>No windows found</span>
 			</div>
 		{:else}
@@ -90,114 +85,102 @@
 			{/each}
 		{/if}
 	</div>
+
+	<footer class="footer"></footer>
 </div>
 
 <style lang="less">
 	.container {
 		display: flex;
 		flex-direction: column;
-		height: 100%;
-		max-height: 600px;
+		width: var(--app-width);
+		height: var(--app-height);
+		overflow: hidden;
 	}
 
 	.header {
+		height: 36px;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		padding: var(--spacing-md) var(--spacing-lg);
-		background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+		gap: var(--spacing-md);
+		padding: 0 var(--spacing-md);
 		border-bottom: 1px solid var(--bg-tertiary);
+		border-right: 4px solid var(--bg-tertiary);
 
-		.logo {
+		.icon {
 			display: flex;
-			align-items: center;
-			gap: var(--spacing-md);
+			color: var(--text);
+			pointer-events: none;
+		}
 
-			.text {
-				font-family: 'JetBrains Mono', monospace;
-				font-size: 15px;
-				font-weight: 600;
+		.search {
+			width: 100%;
+			padding: var(--spacing-sm);
+			background: var(--bg-primary);
+			border: none;
+			color: var(--text-primary);
+			font-family: inherit;
+			font-size: 14px;
+			outline: none;
+
+			&::placeholder {
+				color: var(--text-muted);
 			}
 		}
 
 		.stats {
 			font-family: 'JetBrains Mono', monospace;
-			font-size: 11px;
+			font-size: 12px;
 			color: var(--text-muted);
 			display: flex;
 			gap: var(--spacing-md);
 
-			.stat-item {
+			.item {
 				display: flex;
 				align-items: center;
 				gap: var(--spacing-xs);
 
-				.stat-value {
-					color: var(--accent-blue);
+				.value {
+					color: var(--text-primary);
 					font-weight: 500;
 				}
 			}
 		}
 	}
 
-	.search-container {
-		position: relative;
-		padding: var(--spacing-sm) var(--spacing-lg);
-		background: var(--bg-secondary);
-		border-bottom: 1px solid var(--bg-tertiary);
-
-		.search-input {
-			width: 100%;
-			padding: var(--spacing-sm) var(--spacing-md);
-			padding-left: calc(var(--spacing-lg) + var(--spacing-md));
-			background: var(--bg-primary);
-			border: 1px solid var(--bg-tertiary);
-			border-radius: var(--radius-md);
-			color: var(--text-primary);
-			font-family: inherit;
-			font-size: 12px;
-			outline: none;
-			transition:
-				border-color var(--transition-fast),
-				box-shadow var(--transition-fast);
-
-			&::placeholder {
-				color: var(--text-muted);
-			}
-
-			&:focus {
-				border-color: var(--accent-blue);
-				box-shadow: 0 0 0 3px rgba(102, 217, 239, 0.15);
-			}
-		}
-	}
-
-	.tree-container {
-		flex: 1;
-		overflow-y: auto;
+	.tree {
+		height: 100%;
+		flex-grow: 1;
+		overflow-y: scroll;
 		overflow-x: hidden;
-		padding: var(--spacing-sm) 0;
-		background:
-			radial-gradient(ellipse at top left, rgba(102, 217, 239, 0.03) 0%, transparent 50%),
-			radial-gradient(ellipse at bottom right, rgba(174, 129, 255, 0.03) 0%, transparent 50%),
-			var(--bg-primary);
 
 		&::-webkit-scrollbar {
-			width: 8px;
+			width: 4px;
 		}
 
 		&::-webkit-scrollbar-track {
 			background: transparent;
+			border-left: 1px solid var(--bg-tertiary);
 		}
 
 		&::-webkit-scrollbar-thumb {
 			background: var(--bg-tertiary);
-			border-radius: var(--radius-sm);
+			border-radius: 0;
 
 			&:hover {
 				background: var(--bg-hover);
 			}
 		}
+	}
+
+	.footer {
+		height: 36px;
+		display: flex;
+		border-top: 1px solid var(--bg-tertiary);
+		border-top: 1px solid var(--bg-tertiary);
+		border-right: 4px solid var(--bg-tertiary);
+		background: var(--bg-primary);
 	}
 
 	.loading {
@@ -210,7 +193,7 @@
 		color: var(--text-muted);
 		height: 200px;
 
-		.loading-spinner {
+		.spinner {
 			width: 32px;
 			height: 32px;
 			border: 3px solid var(--bg-tertiary);
@@ -226,7 +209,7 @@
 		}
 	}
 
-	.empty-state {
+	.empty {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -235,9 +218,5 @@
 		color: var(--text-muted);
 		text-align: center;
 		gap: var(--spacing-sm);
-	}
-
-	:global(.empty-state-icon) {
-		color: var(--bg-tertiary);
 	}
 </style>
