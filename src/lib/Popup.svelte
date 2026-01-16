@@ -4,6 +4,7 @@
 	import { Search, SquareX } from 'lucide-svelte';
 
 	import WindowNode from '$lib/components/nodes/Window.svelte';
+	import Stats from '$lib/components/Stats.svelte';
 
 	import { getAllWindows } from './core/chrome';
 	import type { WindowInfo } from './core/types';
@@ -45,21 +46,9 @@
 			class="search"
 			placeholder="Search..."
 		/>
-		<div class="stats">
-			{#if !loading && !error}
-				<span class="item">
-					<span class="value">{windows.length}</span> windows
-				</span>
-				{#if totalGroups > 0}
-					<span class="item">
-						<span class="value">{totalGroups}</span> groups
-					</span>
-				{/if}
-				<span class="item">
-					<span class="value">{totalTabs}</span> tabs
-				</span>
-			{/if}
-		</div>
+		{#if !loading && !error}
+			<Stats windows={windows.length} groups={totalGroups} tabs={totalTabs} />
+		{/if}
 	</header>
 
 	<div class="tree">
@@ -110,7 +99,7 @@
 
 		.icon {
 			display: flex;
-			color: var(--text);
+			color: var(--text-secondary);
 			pointer-events: none;
 		}
 
@@ -126,25 +115,6 @@
 
 			&::placeholder {
 				color: var(--text-muted);
-			}
-		}
-
-		.stats {
-			font-family: 'JetBrains Mono', monospace;
-			font-size: 12px;
-			color: var(--text-muted);
-			display: flex;
-			gap: var(--spacing-md);
-
-			.item {
-				display: flex;
-				align-items: center;
-				gap: var(--spacing-xs);
-
-				.value {
-					color: var(--text-primary);
-					font-weight: 500;
-				}
 			}
 		}
 	}

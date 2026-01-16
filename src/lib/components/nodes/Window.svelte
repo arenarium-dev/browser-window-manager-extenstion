@@ -1,6 +1,7 @@
 <script lang="ts">
 	import GroupNode from '$lib/components/nodes/Group.svelte';
 	import TabNode from '$lib/components/nodes/Tab.svelte';
+	import Stats from '$lib/components/Stats.svelte';
 
 	import { ChevronDown } from 'lucide-svelte';
 
@@ -68,16 +69,7 @@
 			<ChevronDown size={14} color="var(--text-muted)" />
 		</div>
 		<span class="label">{`Window ${index + 1}`}</span>
-		<div class="stats">
-			{#if windowInfo.groups.size > 0}
-				<span class="stat-item">
-					<span class="stat-value">{windowInfo.groups.size}</span> groups
-				</span>
-			{/if}
-			<span class="stat-item">
-				<span class="stat-value">{windowInfo.tabs.length}</span> tabs
-			</span>
-		</div>
+		<Stats windows={0} groups={windowInfo.groups.size} tabs={windowInfo.tabs.length} />
 	</button>
 
 	<div class="children">
@@ -110,7 +102,7 @@
 
 			.icon {
 				display: flex;
-				color: var(--text-muted);
+				color: var(--text-secondary);
 				pointer-events: none;
 				transition: transform var(--transition-fast);
 			}
@@ -118,30 +110,11 @@
 			.label {
 				flex-grow: 1;
 				font-size: 14px;
-				color: var(--text-primary);
+				color: var(--text-secondary);
 				white-space: nowrap;
 				overflow: hidden;
 				text-align: start;
 				text-overflow: ellipsis;
-			}
-
-			.stats {
-				font-family: 'JetBrains Mono', monospace;
-				font-size: 12px;
-				color: var(--text-muted);
-				display: flex;
-				gap: var(--spacing-md);
-
-				.stat-item {
-					display: flex;
-					align-items: center;
-					gap: var(--spacing-xs);
-
-					.stat-value {
-						color: var(--accent-blue);
-						font-weight: 500;
-					}
-				}
 			}
 		}
 
