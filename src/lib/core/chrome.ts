@@ -29,7 +29,7 @@ export async function getWindows(): Promise<Window[]> {
 			// If the group is found, and not already in the window groups, create a new group
 			if (chromeGroup && !windowGroup) {
 				// Create a new group
-				windowGroup = new TabGroup(chromeTab.groupId, chromeGroup);
+				windowGroup = new TabGroup(chromeGroup);
 
 				// Add the group to the window groups
 				windowGroups.set(chromeTab.groupId, windowGroup);
@@ -37,7 +37,7 @@ export async function getWindows(): Promise<Window[]> {
 			}
 
 			// Create a new tab
-			let tab = new Tab(chromeTab.index, chromeTab);
+			let tab = new Tab(chromeTab);
 
 			if (windowGroup) {
 				// If the group is found, add the tab to the group

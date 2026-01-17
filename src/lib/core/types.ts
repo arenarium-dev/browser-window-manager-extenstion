@@ -3,7 +3,6 @@
 // ----------------------------
 
 export interface WindowItem {
-	index: number;
 	matches(query: string): boolean;
 }
 
@@ -18,18 +17,13 @@ export class Window {
 }
 
 export class TabGroup implements WindowItem {
-	// Interface
-	index: number;
-	// Data
 	id: number | undefined;
 	windowId: number | undefined;
 	title: string | undefined;
 	color: chrome.tabGroups.ColorEnum;
 	tabs: Tab[];
 
-	constructor(index: number, group: chrome.tabGroups.TabGroup) {
-		this.index = index;
-
+	constructor(group: chrome.tabGroups.TabGroup) {
 		this.id = group.id;
 		this.windowId = group.windowId;
 		this.title = group.title;
@@ -49,9 +43,6 @@ export class TabGroup implements WindowItem {
 }
 
 export class Tab implements WindowItem {
-	// Interface
-	index: number;
-	// Data
 	id: number | undefined;
 	groupId: number | undefined;
 	windowId: number | undefined;
@@ -59,15 +50,23 @@ export class Tab implements WindowItem {
 	title: string | undefined;
 	icon: string | undefined;
 
-	constructor(index: number, tab: chrome.tabs.Tab) {
-		this.index = index;
-
+	constructor(tab: chrome.tabs.Tab) {
 		this.id = tab.id;
 		this.groupId = tab.groupId;
 		this.windowId = tab.windowId;
 		this.title = tab.title ?? tab.url;
 		this.url = tab.url;
 		this.icon = tab.favIconUrl;
+
+		// Use Google's favicon service for bookmark icons
+		if (!this.icon && this.url) {
+			try {
+				const urlObj = new URL(this.url);
+				this.icon = `https://www.google.com/s2/favicons?domain=${urlObj.hostname}&sz=32`;
+			} catch {
+				this.icon = undefined;
+			}
+		}
 	}
 
 	matches(query: string): boolean {
