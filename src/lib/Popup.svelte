@@ -4,11 +4,13 @@
 	import { Search, SquareX } from 'lucide-svelte';
 
 	import WindowNode from '$lib/components/nodes/Window.svelte';
+	import BookmarksNode from '$lib/components/nodes/Bookmarks.svelte';
 
-	import { getWindows } from '$lib/core/chrome';
-	import type { Window } from '$lib/core/types';
+	import { getWindows, getBookmarks } from '$lib/core/chrome';
+	import type { Window, BookmarksRoot } from '$lib/core/types';
 
 	let windows = $state<Window[]>([]);
+	let bookmarks = $state<BookmarksRoot | null>(null);
 	let loading = $state(true);
 	let error = $state<string | null>(null);
 
@@ -20,8 +22,8 @@
 			try {
 				// Set loading to false
 				loading = false;
-				// Get all windows
-				windows = await getWindows();
+				// Get all windows and bookmarks
+				[windows, bookmarks] = await Promise.all([getWindows(), getBookmarks()]);
 				// Focus search input after load
 				setTimeout(() => searchInput?.focus(), 0);
 			} catch (e) {
@@ -70,6 +72,9 @@
 			{#each windows as window, index (window.id)}
 				<WindowNode {window} {index} query={searchQuery} />
 			{/each}
+			{#if bookmarks && bookmarks.items.length > 0}
+				<BookmarksNode {bookmarks} query={searchQuery} />
+			{/if}
 		{/if}
 	</div>
 

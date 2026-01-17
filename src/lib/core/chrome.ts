@@ -1,4 +1,4 @@
-import { Window, Group, Tab } from './types';
+import { Window, Group, Tab, BookmarksRoot, BookmarkFolder, Bookmark, type BookmarkItem } from './types';
 
 export async function getWindows(): Promise<Window[]> {
 	const windows: Window[] = [];
@@ -52,4 +52,46 @@ export async function getWindows(): Promise<Window[]> {
 	}
 
 	return windows;
+}
+
+function processBookmarkNode(node: chrome.bookmarks.BookmarkTreeNode): BookmarkItem | null {
+	// If it has a URL, it's a bookmark
+	if (node.url) {
+		return new Bookmark(node);
+	}
+
+	// If it has children, it's a folder
+	if (node.children) {
+		const folder = new BookmarkFolder(node);
+		for (const child of node.children) {
+			const item = processBookmarkNode(child);
+			if (item) {
+				folder.children.push(item);
+			}
+		}
+		return folder;
+	}
+
+	return null;
+}
+
+export async function getBookmarks(): Promise<BookmarksRoot> {
+	const root = new BookmarksRoot();
+
+	// Get the bookmark tree
+	const tree = await chrome.bookmarks.getTree();
+
+	// Process the root nodes (usually "Bookmarks Bar", "Other Bookmarks", etc.)
+	for (const rootNode of tree) {
+		if (rootNode.children) {
+			for (const child of rootNode.children) {
+				const item = processBookmarkNode(child);
+				if (item) {
+					root.items.push(item);
+				}
+			}
+		}
+	}
+
+	return root;
 }

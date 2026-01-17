@@ -80,3 +80,74 @@ export class Tab implements WindowItem {
 		return false;
 	}
 }
+
+// Bookmark types
+
+export interface BookmarkItem {
+	matches(query: string): boolean;
+}
+
+export class BookmarksRoot {
+	items: BookmarkItem[];
+
+	constructor() {
+		this.items = [];
+	}
+}
+
+export class BookmarkFolder implements BookmarkItem {
+	id: string;
+	title: string;
+	children: BookmarkItem[];
+
+	constructor(node: chrome.bookmarks.BookmarkTreeNode) {
+		this.id = node.id;
+		this.title = node.title || 'Untitled Folder';
+		this.children = [];
+	}
+
+	matches(query: string): boolean {
+		const lowerQuery = query.trim().toLowerCase();
+		if (!lowerQuery) return true;
+
+		const lowerTitle = this.title.toLowerCase();
+		if (lowerTitle.includes(lowerQuery)) return true;
+
+		return this.children.some((child) => child.matches(lowerQuery));
+	}
+}
+
+export class Bookmark implements BookmarkItem {
+	id: string;
+	title: string;
+	url: string;
+	icon: string | undefined;
+
+	constructor(node: chrome.bookmarks.BookmarkTreeNode) {
+		this.id = node.id;
+		this.title = node.title || node.url || 'Untitled';
+		this.url = node.url || '';
+		// Use Google's favicon service for bookmark icons
+		if (this.url) {
+			try {
+				const urlObj = new URL(this.url);
+				this.icon = `https://www.google.com/s2/favicons?domain=${urlObj.hostname}&sz=32`;
+			} catch {
+				this.icon = undefined;
+			}
+		}
+	}
+
+	matches(query: string): boolean {
+		const lowerQuery = query.trim().toLowerCase();
+		if (!lowerQuery) return true;
+
+		const lowerTitle = this.title.toLowerCase();
+		if (lowerTitle.includes(lowerQuery)) return true;
+
+		const lowerUrl = this.url.toLowerCase();
+		if (lowerUrl.includes(lowerQuery)) return true;
+
+		return false;
+	}
+}
