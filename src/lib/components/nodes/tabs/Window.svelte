@@ -1,10 +1,10 @@
 <script lang="ts">
-	import GroupNode from './Group.svelte';
 	import TabNode from './Tab.svelte';
+	import TabGroupNode from './TabGroup.svelte';
 
 	import { ChevronDown, AppWindow } from 'lucide-svelte';
 
-	import { Window, Tab, Group } from '$lib/core/types';
+	import { Window, Tab, TabGroup } from '$lib/core/types';
 
 	interface Props {
 		window: Window;
@@ -49,8 +49,8 @@
 			{#if item instanceof Tab}
 				<TabNode tab={item} query={props.query} />
 			{/if}
-			{#if item instanceof Group}
-				<GroupNode group={item} query={props.query} />
+			{#if item instanceof TabGroup}
+				<TabGroupNode group={item} query={props.query} />
 			{/if}
 		{/each}
 	</div>

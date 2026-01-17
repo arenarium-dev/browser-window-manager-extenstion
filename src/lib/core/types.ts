@@ -1,6 +1,9 @@
+// ----------------------------
+// WINDOWS
+// ----------------------------
+
 export interface WindowItem {
 	index: number;
-
 	matches(query: string): boolean;
 }
 
@@ -14,7 +17,7 @@ export class Window {
 	}
 }
 
-export class Group implements WindowItem {
+export class TabGroup implements WindowItem {
 	// Interface
 	index: number;
 	// Data
@@ -81,7 +84,9 @@ export class Tab implements WindowItem {
 	}
 }
 
-// Bookmark types
+// ----------------------------
+// BOOKMARKS
+// ----------------------------
 
 export interface BookmarkItem {
 	matches(query: string): boolean;
@@ -127,6 +132,7 @@ export class Bookmark implements BookmarkItem {
 		this.id = node.id;
 		this.title = node.title || node.url || 'Untitled';
 		this.url = node.url || '';
+
 		// Use Google's favicon service for bookmark icons
 		if (this.url) {
 			try {

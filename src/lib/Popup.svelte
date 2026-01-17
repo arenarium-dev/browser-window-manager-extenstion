@@ -3,8 +3,8 @@
 
 	import { Search, SquareX } from 'lucide-svelte';
 
-	import WindowNode from '$lib/components/nodes/Window.svelte';
-	import BookmarksNode from '$lib/components/nodes/Bookmarks.svelte';
+	import WindowNode from '$lib/components/nodes/tabs/Window.svelte';
+	import BookmarksNode from '$lib/components/nodes/bookmarks/Bookmarks.svelte';
 
 	import { getWindows, getBookmarks } from '$lib/core/chrome';
 	import type { Window, BookmarksRoot } from '$lib/core/types';

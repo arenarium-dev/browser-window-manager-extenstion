@@ -1,4 +1,4 @@
-import { Window, Group, Tab, BookmarksRoot, BookmarkFolder, Bookmark, type BookmarkItem } from './types';
+import { Window, TabGroup, Tab, BookmarksRoot, BookmarkFolder, Bookmark, type BookmarkItem } from './types';
 
 export async function getWindows(): Promise<Window[]> {
 	const windows: Window[] = [];
@@ -15,7 +15,7 @@ export async function getWindows(): Promise<Window[]> {
 
 		// Create a new window
 		let window = new Window(chromeWindow);
-		let windowGroups = new Map<number, Group>();
+		let windowGroups = new Map<number, TabGroup>();
 
 		// Process tabs
 		for (const chromeTab of chromeWindow.tabs) {
@@ -29,7 +29,7 @@ export async function getWindows(): Promise<Window[]> {
 			// If the group is found, and not already in the window groups, create a new group
 			if (chromeGroup && !windowGroup) {
 				// Create a new group
-				windowGroup = new Group(chromeTab.groupId, chromeGroup);
+				windowGroup = new TabGroup(chromeTab.groupId, chromeGroup);
 
 				// Add the group to the window groups
 				windowGroups.set(chromeTab.groupId, windowGroup);

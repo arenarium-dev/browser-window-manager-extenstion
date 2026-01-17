@@ -3,10 +3,10 @@
 
 	import { ChevronDown } from 'lucide-svelte';
 
-	import type { Group } from '$lib/core/types';
+	import type { TabGroup } from '$lib/core/types';
 
 	interface Props {
-		group: Group;
+		group: TabGroup;
 		query: string;
 	}
 	let props: Props = $props();
