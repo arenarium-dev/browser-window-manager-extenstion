@@ -1,7 +1,7 @@
-import { Window, TabGroup, Tab, BookmarkFolder, Bookmark, type BookmarkItem } from './types';
+import { WindowGroup, Window, TabGroup, Tab } from './types';
 
-export async function getWindows(): Promise<Window[]> {
-	const windows: Window[] = [];
+export async function getWindows(): Promise<WindowGroup> {
+	let windowGroup = new WindowGroup();
 
 	// Get all windows
 	let chromeWindows = await chrome.windows.getAll({ populate: true });
@@ -15,7 +15,7 @@ export async function getWindows(): Promise<Window[]> {
 
 		// Create a new window
 		let window = new Window(chromeWindow);
-		let windowGroups = new Map<number, TabGroup>();
+		let windowTabGroups = new Map<number, TabGroup>();
 
 		// Process tabs
 		for (const chromeTab of chromeWindow.tabs) {
@@ -24,7 +24,7 @@ export async function getWindows(): Promise<Window[]> {
 
 			// Try to find the group for the tab
 			let chromeGroup = chromeGroups.find((group) => group.id === chromeTab.groupId);
-			let windowGroup = windowGroups.get(chromeTab.groupId);
+			let windowGroup = windowTabGroups.get(chromeTab.groupId);
 
 			// If the group is found, and not already in the window groups, create a new group
 			if (chromeGroup && !windowGroup) {
@@ -32,7 +32,7 @@ export async function getWindows(): Promise<Window[]> {
 				windowGroup = new TabGroup(chromeGroup);
 
 				// Add the group to the window groups
-				windowGroups.set(chromeTab.groupId, windowGroup);
+				windowTabGroups.set(chromeTab.groupId, windowGroup);
 				window.items.push(windowGroup);
 			}
 
@@ -48,57 +48,57 @@ export async function getWindows(): Promise<Window[]> {
 			}
 		}
 
-		windows.push(window);
+		windowGroup.windows.push(window);
 	}
 
-	return windows;
+	return windowGroup;
 }
 
-export async function getBookmarks(): Promise<BookmarkFolder> {
-	const processBookmarkNode = (
-		node: chrome.bookmarks.BookmarkTreeNode
-	): BookmarkItem | undefined => {
-		// If it has a URL, it's a bookmark
-		if (node.url) return new Bookmark(node);
+// export async function getBookmarks(): Promise<BookmarkFolder> {
+// 	const processBookmarkNode = (
+// 		node: chrome.bookmarks.BookmarkTreeNode
+// 	): BookmarkItem | undefined => {
+// 		// If it has a URL, it's a bookmark
+// 		if (node.url) return new Bookmark(node);
 
-		// If it has children, it's a folder
-		if (node.children) {
-			// Create a new folder
-			const folder = new BookmarkFolder(node.id, node.title);
-			// Process the children
-			for (const child of node.children) {
-				const item = processBookmarkNode(child);
-				if (item) folder.children.push(item);
-			}
-			// Return the folder
-			return folder;
-		}
-	};
+// 		// If it has children, it's a folder
+// 		if (node.children) {
+// 			// Create a new folder
+// 			const folder = new BookmarkFolder(node.id, node.title);
+// 			// Process the children
+// 			for (const child of node.children) {
+// 				const item = processBookmarkNode(child);
+// 				if (item) folder.children.push(item);
+// 			}
+// 			// Return the folder
+// 			return folder;
+// 		}
+// 	};
 
-	// Create a new bookmarks root
-	const root = new BookmarkFolder('root', 'Bookmarks');
+// 	// Create a new bookmarks root
+// 	const root = new BookmarkFolder('root', 'Bookmarks');
 
-	// Get the bookmark tree
-	const tree = await chrome.bookmarks.getTree();
+// 	// Get the bookmark tree
+// 	const tree = await chrome.bookmarks.getTree();
 
-	// Process the root nodes (usually "Bookmarks Bar", "Other Bookmarks", etc.)
-	for (const rootNode of tree) {
-		// Skip if the node does not have children
-		if (!rootNode.children) continue;
+// 	// Process the root nodes (usually "Bookmarks Bar", "Other Bookmarks", etc.)
+// 	for (const rootNode of tree) {
+// 		// Skip if the node does not have children
+// 		if (!rootNode.children) continue;
 
-		// Process the children
-		for (const child of rootNode.children) {
-			// Process the child
-			const item = processBookmarkNode(child);
-			if (!item) continue;
+// 		// Process the children
+// 		for (const child of rootNode.children) {
+// 			// Process the child
+// 			const item = processBookmarkNode(child);
+// 			if (!item) continue;
 
-			if (child.unmodifiable && item instanceof BookmarkFolder) {
-				root.children.push(...item.children);
-			} else {
-				if (item) root.children.push(item);
-			}
-		}
-	}
+// 			if (child.unmodifiable && item instanceof BookmarkFolder) {
+// 				root.children.push(...item.children);
+// 			} else {
+// 				if (item) root.children.push(item);
+// 			}
+// 		}
+// 	}
 
-	return root;
-}
+// 	return root;
+// }

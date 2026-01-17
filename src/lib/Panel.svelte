@@ -3,19 +3,19 @@
 
 	import { Search, SquareX } from 'lucide-svelte';
 
-	import WindowNode from '$lib/components/nodes/tabs/Window.svelte';
-	import BookmarksNode from '$lib/components/nodes/bookmarks/Bookmarks.svelte';
+	import WindowGroupNode from '$lib/components/nodes/WindowGroup.svelte';
 
-	import { getWindows, getBookmarks } from '$lib/core/chrome';
-	import type { Window, BookmarkFolder } from '$lib/core/types';
+	import { getWindows } from '$lib/core/chrome';
+	import type { WindowGroup } from '$lib/core/types';
 
-	let windows = $state<Window[]>([]);
-	let bookmarks = $state<BookmarkFolder | null>(null);
 	let loading = $state(true);
 	let error = $state<string | null>(null);
 
 	let searchQuery = $state('');
 	let searchInput = $state<HTMLInputElement | null>(null);
+
+	let windowGroupOpened = $state<WindowGroup | null>(null);
+	let windowGroupStored = $state<WindowGroup | null>(null);
 
 	onMount(async () => {
 		setTimeout(async () => {
@@ -23,7 +23,7 @@
 				// Set loading to false
 				loading = false;
 				// Get all windows and bookmarks
-				[windows, bookmarks] = await Promise.all([getWindows(), getBookmarks()]);
+				windowGroupOpened = await getWindows();
 				// Focus search input after load
 				setTimeout(() => searchInput?.focus(), 0);
 			} catch (e) {
@@ -55,7 +55,7 @@
 		{#if loading}
 			<div class="loading">
 				<div class="spinner"></div>
-				<span>Loading tabs...</span>
+				<span>Loading...</span>
 			</div>
 		{:else if error}
 			<div class="empty">
@@ -63,22 +63,10 @@
 				<span>Failed to load tabs</span>
 				<small>{error}</small>
 			</div>
-		{:else if windows.length === 0}
-			<div class="empty">
-				<SquareX class="icon" size={48} />
-				<span>No windows found</span>
-			</div>
-		{:else}
-			{#each windows as window, index (window.id)}
-				<WindowNode {window} {index} query={searchQuery} />
-			{/each}
-			{#if bookmarks && bookmarks.children.length > 0}
-				<BookmarksNode root={bookmarks} query={searchQuery} />
-			{/if}
+		{:else if windowGroupOpened}
+			<WindowGroupNode group={windowGroupOpened} title="Opened" query={searchQuery} />
 		{/if}
 	</div>
-
-	<footer class="footer"></footer>
 </div>
 
 <style lang="less">
@@ -87,7 +75,6 @@
 		flex-direction: column;
 		width: var(--app-width);
 		height: var(--app-height);
-		overflow: hidden;
 	}
 
 	.header {
@@ -98,7 +85,6 @@
 		gap: var(--spacing-sm);
 		padding: 0 var(--spacing-md);
 		border-bottom: 1px solid var(--bg-tertiary);
-		border-right: 4px solid var(--bg-tertiary);
 
 		.icon {
 			display: flex;
@@ -129,35 +115,6 @@
 		align-items: start;
 		gap: var(--spacing-md);
 		padding: var(--spacing-md);
-		overflow-y: scroll;
-		overflow-x: hidden;
-
-		&::-webkit-scrollbar {
-			width: 4px;
-		}
-
-		&::-webkit-scrollbar-track {
-			background: transparent;
-			border-left: 1px solid var(--bg-tertiary);
-		}
-
-		&::-webkit-scrollbar-thumb {
-			background: var(--bg-tertiary);
-			border-radius: 0;
-
-			&:hover {
-				background: var(--bg-hover);
-			}
-		}
-	}
-
-	.footer {
-		height: 36px;
-		display: flex;
-		border-top: 1px solid var(--bg-tertiary);
-		border-top: 1px solid var(--bg-tertiary);
-		border-right: 4px solid var(--bg-tertiary);
-		background: var(--bg-primary);
 	}
 
 	.loading {
@@ -180,12 +137,6 @@
 		}
 	}
 
-	@keyframes spin {
-		to {
-			transform: rotate(360deg);
-		}
-	}
-
 	.empty {
 		display: flex;
 		flex-direction: column;
@@ -195,5 +146,29 @@
 		color: var(--text-muted);
 		text-align: center;
 		gap: var(--spacing-sm);
+	}
+
+	::-webkit-scrollbar {
+		width: 4px;
+	}
+
+	::-webkit-scrollbar-track {
+		background: transparent;
+		border-left: 1px solid var(--bg-tertiary);
+	}
+
+	::-webkit-scrollbar-thumb {
+		background: var(--bg-tertiary);
+		border-radius: 0;
+
+		&:hover {
+			background: var(--bg-hover);
+		}
+	}
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
 	}
 </style>

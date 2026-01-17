@@ -1,14 +1,13 @@
 <script lang="ts">
-	import TabNode from './Tab.svelte';
-	import TabGroupNode from './TabGroup.svelte';
+	import WindowNode from './Window.svelte';
 
-	import { ChevronDown, AppWindow } from 'lucide-svelte';
+	import { ChevronDown, PanelsTopLeft } from 'lucide-svelte';
 
-	import { Window, Tab, TabGroup } from '$lib/core/types';
+	import { WindowGroup } from '$lib/core/types';
 
 	interface Props {
-		window: Window;
-		index: number;
+		group: WindowGroup;
+		title: string;
 		query: string;
 	}
 	let props: Props = $props();
@@ -17,7 +16,7 @@
 	let collapsed = $state(false);
 
 	// Visibility
-	let visibleItems = $derived(props.window.items.filter((item) => item.matches(props.query)));
+	let visibleItems = $derived(props.group.windows.filter((item) => item.matches(props.query)));
 	let visibleContentExists = $derived(visibleItems.length > 0);
 
 	// Auto-expand when searching
@@ -33,35 +32,30 @@
 	}
 </script>
 
-<div class="window" class:collapsed class:hidden={!visibleContentExists}>
+<div class="group" class:collapsed class:hidden={!visibleContentExists}>
 	<button class="header" onclick={onToggle}>
 		<div class="icon">
-			<AppWindow size={16} />
+			<PanelsTopLeft size={16} />
 		</div>
-		<span class="label">{`Window ${props.window.id}`}</span>
+		<span class="label">{props.title}</span>
 		<div class="icon chevron">
 			<ChevronDown size={16} />
 		</div>
 	</button>
 
 	<div class="children">
-		{#each props.window.items as item}
-			{#if item instanceof Tab}
-				<TabNode tab={item} query={props.query} />
-			{/if}
-			{#if item instanceof TabGroup}
-				<TabGroupNode group={item} query={props.query} />
-			{/if}
+		{#each props.group.windows as window}
+			<WindowNode {window} query={props.query} />
 		{/each}
 	</div>
 </div>
 
 <style lang="less">
-	.window {
+	.group {
 		width: 100%;
 		display: flex;
 		flex-direction: column;
-		align-items: start;
+		align-items: stretch;
 		gap: var(--spacing-sm);
 
 		.header {

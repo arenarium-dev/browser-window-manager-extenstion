@@ -1,7 +1,7 @@
 <script lang="ts">
-	import Popup from './lib/Popup.svelte';
+	import Panel from './lib/Panel.svelte';
 </script>
 
 <main>
-	<Popup />
+	<Panel />
 </main>

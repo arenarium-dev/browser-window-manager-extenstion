@@ -1,13 +1,13 @@
 <script lang="ts">
-	import BookmarkNode from './Bookmark.svelte';
-	import BookmarkFolderNode from './BookmarkFolder.svelte';
+	import TabNode from './Tab.svelte';
+	import TabGroupNode from './TabGroup.svelte';
 
-	import { ChevronDown, Star } from 'lucide-svelte';
+	import { ChevronDown, AppWindow } from 'lucide-svelte';
 
-	import { Bookmark, BookmarkFolder } from '$lib/core/types';
+	import { Window, Tab, TabGroup } from '$lib/core/types';
 
 	interface Props {
-		root: BookmarkFolder;
+		window: Window;
 		query: string;
 	}
 	let props: Props = $props();
@@ -16,7 +16,7 @@
 	let collapsed = $state(false);
 
 	// Visibility
-	let visibleItems = $derived(props.root.children.filter((item) => item.matches(props.query)));
+	let visibleItems = $derived(props.window.items.filter((item) => item.matches(props.query)));
 	let visibleContentExists = $derived(visibleItems.length > 0);
 
 	// Auto-expand when searching
@@ -32,30 +32,31 @@
 	}
 </script>
 
-<div class="bookmarks" class:collapsed class:hidden={!visibleContentExists}>
+<div class="window" class:collapsed class:hidden={!visibleContentExists}>
 	<button class="header" onclick={onToggle}>
-		<div class="icon star">
-			<Star size={14} />
+		<div class="icon">
+			<AppWindow size={16} />
 		</div>
-		<span class="label">Bookmarks</span>
+		<span class="label">{`Window ${props.window.id}`}</span>
 		<div class="icon chevron">
 			<ChevronDown size={16} />
 		</div>
 	</button>
 
 	<div class="children">
-		{#each visibleItems as item (item instanceof Bookmark ? item.id : item instanceof BookmarkFolder ? item.id : Math.random())}
-			{#if item instanceof Bookmark}
-				<BookmarkNode bookmark={item} query={props.query} />
-			{:else if item instanceof BookmarkFolder}
-				<BookmarkFolderNode folder={item} query={props.query} />
+		{#each props.window.items as item}
+			{#if item instanceof Tab}
+				<TabNode tab={item} query={props.query} />
+			{/if}
+			{#if item instanceof TabGroup}
+				<TabGroupNode group={item} query={props.query} />
 			{/if}
 		{/each}
 	</div>
 </div>
 
 <style lang="less">
-	.bookmarks {
+	.window {
 		width: 100%;
 		display: flex;
 		flex-direction: column;
@@ -63,7 +64,6 @@
 		gap: var(--spacing-sm);
 
 		.header {
-			width: 100%;
 			display: flex;
 			align-items: center;
 			gap: var(--spacing-sm);
@@ -77,16 +77,9 @@
 
 			.icon {
 				display: flex;
-				pointer-events: none;
 				color: var(--text-primary);
-
-				&.chevron {
-					transition: transform var(--transition-fast);
-				}
-
-				&.star {
-					color: var(--accent-yellow);
-				}
+				pointer-events: none;
+				transition: transform var(--transition-fast);
 			}
 
 			.label {
