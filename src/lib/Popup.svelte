@@ -4,30 +4,31 @@
 	import { Search, SquareX } from 'lucide-svelte';
 
 	import WindowNode from '$lib/components/nodes/Window.svelte';
-	import Stats from '$lib/components/Stats.svelte';
 
-	import { getAllWindows } from './core/chrome';
-	import type { WindowInfo } from './core/types';
+	import { getWindows } from '$lib/core/chrome';
+	import type { Window } from '$lib/core/types';
 
-	let windows = $state<WindowInfo[]>([]);
+	let windows = $state<Window[]>([]);
 	let loading = $state(true);
 	let error = $state<string | null>(null);
+
 	let searchQuery = $state('');
 	let searchInput = $state<HTMLInputElement | null>(null);
-
-	// Computed stats
-	let totalTabs = $derived(windows.reduce((sum, w) => sum + w.tabs.length, 0));
-	let totalGroups = $derived(windows.reduce((sum, w) => sum + w.groups.size, 0));
 
 	onMount(async () => {
 		setTimeout(async () => {
 			try {
-				windows = await getAllWindows();
+				// Set loading to false
 				loading = false;
+				// Get all windows
+				windows = await getWindows();
 				// Focus search input after load
 				setTimeout(() => searchInput?.focus(), 0);
 			} catch (e) {
+				// Set error
 				error = String(e);
+			} finally {
+				// Set loading to false
 				loading = false;
 			}
 		}, 0);
@@ -66,8 +67,8 @@
 				<span>No windows found</span>
 			</div>
 		{:else}
-			{#each windows as windowInfo, index (windowInfo.id)}
-				<WindowNode {windowInfo} {index} {searchQuery} />
+			{#each windows as window, index (window.id)}
+				<WindowNode {window} {index} query={searchQuery} />
 			{/each}
 		{/if}
 	</div>

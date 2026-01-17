@@ -3,32 +3,32 @@
 
 	import { ChevronDown } from 'lucide-svelte';
 
-	import type { TabGroupInfo, TabInfo } from '$lib/core/types';
+	import type { Group } from '$lib/core/types';
 
 	interface Props {
-		group: TabGroupInfo;
-		tabs: TabInfo[];
-		searchQuery: string;
+		group: Group;
+		query: string;
 	}
+	let props: Props = $props();
 
-	let { group, tabs, searchQuery }: Props = $props();
-
+	// Collapsed
 	let collapsed = $state(false);
 
-	// Filter visibility based on search
+	// Visibility
+	let visible = $derived(props.group.matches(props.query));
 	let visibleTabs = $derived.by(() => {
-		if (!searchQuery.trim()) return tabs;
-		const query = searchQuery.toLowerCase();
-		return tabs.filter(
-			(tab) => tab.title.toLowerCase().includes(query) || tab.url.toLowerCase().includes(query)
-		);
-	});
+		// Check if query is empty
+		const query = props.query.toLowerCase().trim();
+		if (!query) return props.group.tabs;
 
-	let hasVisibleContent = $derived(visibleTabs.length > 0);
+		// Filter tabs by query
+		return props.group.tabs.filter((tab) => tab.matches(query));
+	});
+	let visibleContentExists = $derived(visibleTabs.length > 0);
 
 	// Auto-expand when searching and has matches
 	$effect(() => {
-		if (searchQuery.trim() && hasVisibleContent) {
+		if (props.query.trim() && visibleContentExists) {
 			collapsed = false;
 		}
 	});
@@ -42,19 +42,19 @@
 <div
 	class="group"
 	class:collapsed
-	class:hidden={!hasVisibleContent}
-	style="--group-color: {group.color}"
+	class:hidden={!visible}
+	style="--group-color: {props.group.color}"
 >
 	<button class="header" onclick={onToggle}>
 		<div class="icon">
 			<ChevronDown size={16} />
 		</div>
-		<span class="label">{group.title}</span>
+		<span class="label">{props.group.title}</span>
 	</button>
 
 	<div class="children">
-		{#each tabs as tab (tab.id)}
-			<TabNode {tab} inGroup={true} {searchQuery} />
+		{#each visibleTabs as tab (tab.id)}
+			<TabNode {tab} query={props.query} />
 		{/each}
 	</div>
 </div>

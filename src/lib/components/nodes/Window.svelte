@@ -1,58 +1,28 @@
 <script lang="ts">
 	import GroupNode from '$lib/components/nodes/Group.svelte';
 	import TabNode from '$lib/components/nodes/Tab.svelte';
-	import Stats from '$lib/components/Stats.svelte';
 
 	import { ChevronDown } from 'lucide-svelte';
 
-	import { organizeTabsByGroups } from '$lib/core/chrome';
-	import type { WindowInfo, TabInfo, TabGroupInfo } from '$lib/core/types';
+	import { Window, Tab, Group } from '$lib/core/types';
 
 	interface Props {
-		windowInfo: WindowInfo;
+		window: Window;
 		index: number;
-		searchQuery: string;
+		query: string;
 	}
+	let props: Props = $props();
 
-	let { windowInfo, index, searchQuery }: Props = $props();
-
+	// Collapsed
 	let collapsed = $state(false);
 
-	// Organize tabs by groups, maintaining order
-	let organizedContent = $derived.by(() => {
-		const { groupedTabs } = organizeTabsByGroups(windowInfo.tabs);
-		const items: Array<
-			{ type: 'group'; group: TabGroupInfo; tabs: TabInfo[] } | { type: 'tab'; tab: TabInfo }
-		> = [];
-		const processedGroups = new Set<number>();
-
-		for (const tab of windowInfo.tabs) {
-			if (tab.groupId !== -1 && !processedGroups.has(tab.groupId)) {
-				const group = windowInfo.groups.get(tab.groupId);
-				const tabs = groupedTabs.get(tab.groupId);
-				if (group && tabs) {
-					items.push({ type: 'group', group, tabs });
-					processedGroups.add(tab.groupId);
-				}
-			} else if (tab.groupId === -1) {
-				items.push({ type: 'tab', tab });
-			}
-		}
-		return items;
-	});
-
-	// Filter visibility based on search
-	let hasVisibleContent = $derived.by(() => {
-		if (!searchQuery.trim()) return true;
-		const query = searchQuery.toLowerCase();
-		return windowInfo.tabs.some(
-			(tab) => tab.title.toLowerCase().includes(query) || tab.url.toLowerCase().includes(query)
-		);
-	});
+	// Visibility
+	let visibleItems = $derived(props.window.items.filter((item) => item.matches(props.query)));
+	let visibleContentExists = $derived(visibleItems.length > 0);
 
 	// Auto-expand when searching
 	$effect(() => {
-		if (searchQuery.trim() && hasVisibleContent) {
+		if (props.query.trim() && visibleContentExists) {
 			collapsed = false;
 		}
 	});
@@ -63,20 +33,21 @@
 	}
 </script>
 
-<div class="window" class:collapsed class:hidden={!hasVisibleContent}>
-	<button class="header" class:focused={windowInfo.focused} onclick={onToggle}>
+<div class="window" class:collapsed class:hidden={!visibleContentExists}>
+	<button class="header" onclick={onToggle}>
 		<div class="icon">
 			<ChevronDown size={16} />
 		</div>
-		<span class="label">{`Window ${index + 1}`}</span>
+		<span class="label">{`Window ${props.index + 1}`}</span>
 	</button>
 
 	<div class="children">
-		{#each organizedContent as item}
-			{#if item.type === 'group'}
-				<GroupNode group={item.group} tabs={item.tabs} {searchQuery} />
-			{:else}
-				<TabNode tab={item.tab} inGroup={false} {searchQuery} />
+		{#each props.window.items as item}
+			{#if item instanceof Tab}
+				<TabNode tab={item} query={props.query} />
+			{/if}
+			{#if item instanceof Group}
+				<GroupNode group={item} query={props.query} />
 			{/if}
 		{/each}
 	</div>

@@ -1,64 +1,67 @@
 <script lang="ts">
 	import { Globe } from 'lucide-svelte';
 
-	import { switchToTab } from '$lib/core/chrome';
-	import type { TabInfo } from '$lib/core/types';
+	import type { Tab } from '$lib/core/types';
 
 	interface Props {
-		tab: TabInfo;
-		inGroup: boolean;
-		searchQuery: string;
+		tab: Tab;
+		query: string;
 	}
+	let props: Props = $props();
 
-	let { tab, inGroup, searchQuery }: Props = $props();
-
+	// Favicon
 	let faviconError = $state(false);
+	let faviconValid = $derived(props.tab.icon && !props.tab.icon.startsWith('chrome://'));
 
-	// Check if tab matches search
-	let isVisible = $derived.by(() => {
-		if (!searchQuery.trim()) return true;
-		const query = searchQuery.toLowerCase();
-		return tab.title.toLowerCase().includes(query) || tab.url.toLowerCase().includes(query);
-	});
+	// Visibility
+	let visible = $derived(props.tab.matches(props.query));
 
-	// Highlight matching text
-	let highlightedTitle = $derived.by(() => {
-		if (!searchQuery.trim()) return tab.title;
-		const query = searchQuery.toLowerCase();
-		const title = tab.title;
-		const lowerTitle = title.toLowerCase();
-		const idx = lowerTitle.indexOf(query);
+	// Title
+	let titleContent = $derived.by(() => {
+		// Get title
+		const title = props.tab.title;
+		if (!title) return '';
+
+		// Check if query is in title
+		const query = props.query.toLowerCase().trim();
+		if (!query) return title;
+
+		// Get index of query in title
+		const idx = title.toLowerCase().indexOf(query);
 		if (idx === -1) return title;
 
+		// Return title with highlighted match
 		const before = title.slice(0, idx);
 		const match = title.slice(idx, idx + query.length);
 		const after = title.slice(idx + query.length);
 		return { before, match, after };
 	});
 
-	let showFavicon = $derived(tab.icon && !tab.icon.startsWith('chrome://') && !faviconError);
-
 	async function onClick() {
-		await switchToTab(tab.id, tab.windowId);
-	}
+		// Get tab id and window id
+		const id = props.tab.id;
+		const windowId = props.tab.windowId;
+		if (!id || !windowId) return;
 
-	function handleFaviconError() {
-		faviconError = true;
+		await chrome.tabs.update(id, { active: true });
+		await chrome.windows.update(windowId, { focused: true });
+		window.close();
 	}
 </script>
 
-<button class="tab" class:in-group={inGroup} class:hidden={!isVisible} onclick={onClick}>
-	{#if showFavicon}
-		<img class="favicon" src={tab.icon} alt="" onerror={handleFaviconError} />
+<button class="tab" class:hidden={!visible} onclick={onClick}>
+	{#if faviconValid && !faviconError}
+		<img class="favicon" src={props.tab.icon} alt="" onerror={() => (faviconError = true)} />
 	{:else}
 		<Globe size={16} color="var(--text-secondary)" />
 	{/if}
-	<span class="title" title="{tab.title}\n{tab.url}">
-		{#if typeof highlightedTitle === 'string'}
-			{highlightedTitle}
+	<span class="title" title="{props.tab.title}\n{props.tab.url}">
+		{#if typeof titleContent === 'string'}
+			<span>{titleContent}</span>
 		{:else}
-			{highlightedTitle.before}<span class="highlight">{highlightedTitle.match}</span
-			>{highlightedTitle.after}
+			<span>{titleContent.before}</span>
+			<span class="highlight">{titleContent.match}</span>
+			<span>{titleContent.after}</span>
 		{/if}
 	</span>
 </button>
