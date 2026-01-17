@@ -92,22 +92,14 @@ export interface BookmarkItem {
 	matches(query: string): boolean;
 }
 
-export class BookmarksRoot {
-	items: BookmarkItem[];
-
-	constructor() {
-		this.items = [];
-	}
-}
-
 export class BookmarkFolder implements BookmarkItem {
 	id: string;
 	title: string;
 	children: BookmarkItem[];
 
-	constructor(node: chrome.bookmarks.BookmarkTreeNode) {
-		this.id = node.id;
-		this.title = node.title || 'Untitled Folder';
+	constructor(id: string, title: string) {
+		this.id = id;
+		this.title = title;
 		this.children = [];
 	}
 

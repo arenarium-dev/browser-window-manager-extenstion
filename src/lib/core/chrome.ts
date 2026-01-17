@@ -1,4 +1,4 @@
-import { Window, TabGroup, Tab, BookmarksRoot, BookmarkFolder, Bookmark, type BookmarkItem } from './types';
+import { Window, TabGroup, Tab, BookmarkFolder, Bookmark, type BookmarkItem } from './types';
 
 export async function getWindows(): Promise<Window[]> {
 	const windows: Window[] = [];
@@ -54,41 +54,48 @@ export async function getWindows(): Promise<Window[]> {
 	return windows;
 }
 
-function processBookmarkNode(node: chrome.bookmarks.BookmarkTreeNode): BookmarkItem | null {
-	// If it has a URL, it's a bookmark
-	if (node.url) {
-		return new Bookmark(node);
-	}
+export async function getBookmarks(): Promise<BookmarkFolder> {
+	const processBookmarkNode = (
+		node: chrome.bookmarks.BookmarkTreeNode
+	): BookmarkItem | undefined => {
+		// If it has a URL, it's a bookmark
+		if (node.url) return new Bookmark(node);
 
-	// If it has children, it's a folder
-	if (node.children) {
-		const folder = new BookmarkFolder(node);
-		for (const child of node.children) {
-			const item = processBookmarkNode(child);
-			if (item) {
-				folder.children.push(item);
+		// If it has children, it's a folder
+		if (node.children) {
+			// Create a new folder
+			const folder = new BookmarkFolder(node.id, node.title);
+			// Process the children
+			for (const child of node.children) {
+				const item = processBookmarkNode(child);
+				if (item) folder.children.push(item);
 			}
+			// Return the folder
+			return folder;
 		}
-		return folder;
-	}
+	};
 
-	return null;
-}
-
-export async function getBookmarks(): Promise<BookmarksRoot> {
-	const root = new BookmarksRoot();
+	// Create a new bookmarks root
+	const root = new BookmarkFolder('root', 'Bookmarks');
 
 	// Get the bookmark tree
 	const tree = await chrome.bookmarks.getTree();
 
 	// Process the root nodes (usually "Bookmarks Bar", "Other Bookmarks", etc.)
 	for (const rootNode of tree) {
-		if (rootNode.children) {
-			for (const child of rootNode.children) {
-				const item = processBookmarkNode(child);
-				if (item) {
-					root.items.push(item);
-				}
+		// Skip if the node does not have children
+		if (!rootNode.children) continue;
+
+		// Process the children
+		for (const child of rootNode.children) {
+			// Process the child
+			const item = processBookmarkNode(child);
+			if (!item) continue;
+
+			if (child.unmodifiable && item instanceof BookmarkFolder) {
+				root.children.push(...item.children);
+			} else {
+				if (item) root.children.push(item);
 			}
 		}
 	}

@@ -7,10 +7,10 @@
 	import BookmarksNode from '$lib/components/nodes/bookmarks/Bookmarks.svelte';
 
 	import { getWindows, getBookmarks } from '$lib/core/chrome';
-	import type { Window, BookmarksRoot } from '$lib/core/types';
+	import type { Window, BookmarkFolder } from '$lib/core/types';
 
 	let windows = $state<Window[]>([]);
-	let bookmarks = $state<BookmarksRoot | null>(null);
+	let bookmarks = $state<BookmarkFolder | null>(null);
 	let loading = $state(true);
 	let error = $state<string | null>(null);
 
@@ -72,8 +72,8 @@
 			{#each windows as window, index (window.id)}
 				<WindowNode {window} {index} query={searchQuery} />
 			{/each}
-			{#if bookmarks && bookmarks.items.length > 0}
-				<BookmarksNode {bookmarks} query={searchQuery} />
+			{#if bookmarks && bookmarks.children.length > 0}
+				<BookmarksNode root={bookmarks} query={searchQuery} />
 			{/if}
 		{/if}
 	</div>

@@ -4,10 +4,10 @@
 
 	import { ChevronDown, Star } from 'lucide-svelte';
 
-	import { BookmarksRoot, Bookmark, BookmarkFolder } from '$lib/core/types';
+	import { Bookmark, BookmarkFolder } from '$lib/core/types';
 
 	interface Props {
-		bookmarks: BookmarksRoot;
+		root: BookmarkFolder;
 		query: string;
 	}
 	let props: Props = $props();
@@ -16,7 +16,7 @@
 	let collapsed = $state(false);
 
 	// Visibility
-	let visibleItems = $derived(props.bookmarks.items.filter((item) => item.matches(props.query)));
+	let visibleItems = $derived(props.root.children.filter((item) => item.matches(props.query)));
 	let visibleContentExists = $derived(visibleItems.length > 0);
 
 	// Auto-expand when searching
