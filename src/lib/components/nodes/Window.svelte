@@ -2,7 +2,7 @@
 	import GroupNode from '$lib/components/nodes/Group.svelte';
 	import TabNode from '$lib/components/nodes/Tab.svelte';
 
-	import { ChevronDown } from 'lucide-svelte';
+	import { ChevronDown, AppWindow } from 'lucide-svelte';
 
 	import { Window, Tab, Group } from '$lib/core/types';
 
@@ -36,9 +36,12 @@
 <div class="window" class:collapsed class:hidden={!visibleContentExists}>
 	<button class="header" onclick={onToggle}>
 		<div class="icon">
-			<ChevronDown size={16} />
+			<AppWindow size={16} />
 		</div>
 		<span class="label">{`Window ${props.window.id}`}</span>
+		<div class="icon chevron">
+			<ChevronDown size={16} />
+		</div>
 	</button>
 
 	<div class="children">
@@ -66,10 +69,9 @@
 			display: flex;
 			align-items: center;
 			gap: var(--spacing-sm);
-			padding: var(--spacing-xs) 0;
-			padding-left: var(--spacing-sm);
+			padding: var(--spacing-xs) var(--spacing-sm);
 			background-color: var(--bg-secondary);
-			border: 2px solid var(--text-primary);
+			border: 2px solid var(--text-secondary);
 			border-radius: var(--radius-md);
 			font-size: 12px;
 			cursor: pointer;
@@ -93,6 +95,7 @@
 
 			&:hover {
 				background-color: var(--bg-tertiary);
+				border-color: var(--text-primary);
 			}
 		}
 
@@ -106,7 +109,7 @@
 		}
 
 		&.collapsed {
-			.icon {
+			.chevron {
 				transform: rotate(-90deg);
 			}
 

@@ -46,10 +46,11 @@
 	style="--group-color: {props.group.color}"
 >
 	<button class="header" onclick={onToggle}>
-		<div class="icon">
+		<div class="circle"></div>
+		<span class="label">{props.group.title}</span>
+		<div class="icon chevron">
 			<ChevronDown size={16} />
 		</div>
-		<span class="label">{props.group.title}</span>
 	</button>
 
 	<div class="children">
@@ -75,32 +76,39 @@
 			display: flex;
 			align-items: center;
 			gap: var(--spacing-sm);
-			padding: var(--spacing-xs) var(--spacing-lg);
-			padding-left: var(--spacing-sm);
+			padding: var(--spacing-xs) var(--spacing-sm);
 			background-color: var(--bg-secondary);
-			border: 2px solid var(--color);
+			border: 2px solid var(--text-secondary);
 			border-radius: var(--radius-md);
 			cursor: pointer;
 			transition: background var(--transition-fast);
 
-			.icon {
-				display: flex;
-				color: var(--color);
-				pointer-events: none;
-				transition: transform var(--transition-fast);
+			.circle {
+				width: 12px;
+				height: 12px;
+				border-radius: 50%;
+				background-color: var(--color);
 			}
 
 			.label {
 				flex: 1;
-				color: var(--color);
+				color: var(--text-primary);
 				font-size: 12px;
 				white-space: nowrap;
 				overflow: hidden;
 				text-overflow: ellipsis;
 			}
 
+			.icon {
+				display: flex;
+				color: var(--text-primary);
+				pointer-events: none;
+				transition: transform var(--transition-fast);
+			}
+
 			&:hover {
 				background-color: var(--bg-tertiary);
+				border-color: var(--text-secondary);
 			}
 		}
 
@@ -116,7 +124,7 @@
 
 		&.collapsed {
 			.header {
-				.icon {
+				.chevron {
 					transform: rotate(-90deg);
 				}
 			}

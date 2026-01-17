@@ -1,4 +1,5 @@
 <script lang="ts">
+	import BookmarkFolderNode from './BookmarkFolder.svelte';
 	import BookmarkNode from '$lib/components/nodes/Bookmark.svelte';
 
 	import { ChevronDown, Folder } from 'lucide-svelte';
@@ -41,14 +42,13 @@
 
 <div class="folder" class:collapsed class:hidden={!visible}>
 	<button class="header" onclick={onToggle}>
-		<div class="icon chevron">
-			<ChevronDown size={16} />
-		</div>
-		<div class="icon folder-icon">
+		<div class="icon">
 			<Folder size={14} />
 		</div>
 		<span class="label">{props.folder.title}</span>
-		<span class="count">{props.folder.children.length}</span>
+		<div class="icon chevron">
+			<ChevronDown size={16} />
+		</div>
 	</button>
 
 	<div class="children">
@@ -56,7 +56,7 @@
 			{#if child instanceof Bookmark}
 				<BookmarkNode bookmark={child} query={props.query} />
 			{:else if child instanceof BookmarkFolder}
-				<svelte:self folder={child} query={props.query} />
+				<BookmarkFolderNode folder={child} query={props.query} />
 			{/if}
 		{/each}
 	</div>
@@ -76,10 +76,9 @@
 			display: flex;
 			align-items: center;
 			gap: var(--spacing-sm);
-			padding: var(--spacing-xs) var(--spacing-lg);
-			padding-left: var(--spacing-sm);
+			padding: var(--spacing-xs) var(--spacing-sm);
 			background-color: var(--bg-secondary);
-			border: 2px solid var(--accent-orange);
+			border: 2px solid var(--text-secondary);
 			border-radius: var(--radius-md);
 			cursor: pointer;
 			transition: background var(--transition-fast);
@@ -87,36 +86,25 @@
 			.icon {
 				display: flex;
 				pointer-events: none;
+				color: var(--text-primary);
 
 				&.chevron {
-					color: var(--accent-orange);
 					transition: transform var(--transition-fast);
-				}
-
-				&.folder-icon {
-					color: var(--accent-orange);
 				}
 			}
 
 			.label {
 				flex: 1;
-				color: var(--accent-orange);
+				color: var(--text-primary);
 				font-size: 12px;
 				white-space: nowrap;
 				overflow: hidden;
 				text-overflow: ellipsis;
 			}
 
-			.count {
-				color: var(--text-muted);
-				font-size: 10px;
-				padding: 0 var(--spacing-xs);
-				background: var(--bg-tertiary);
-				border-radius: var(--radius-sm);
-			}
-
 			&:hover {
 				background-color: var(--bg-tertiary);
+				border-color: var(--text-primary);
 			}
 		}
 

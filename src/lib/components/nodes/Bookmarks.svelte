@@ -34,13 +34,13 @@
 
 <div class="bookmarks" class:collapsed class:hidden={!visibleContentExists}>
 	<button class="header" onclick={onToggle}>
-		<div class="icon chevron">
-			<ChevronDown size={16} />
-		</div>
 		<div class="icon star">
 			<Star size={14} />
 		</div>
 		<span class="label">Bookmarks</span>
+		<div class="icon chevron">
+			<ChevronDown size={16} />
+		</div>
 	</button>
 
 	<div class="children">
@@ -67,10 +67,9 @@
 			display: flex;
 			align-items: center;
 			gap: var(--spacing-sm);
-			padding: var(--spacing-xs) 0;
-			padding-left: var(--spacing-sm);
+			padding: var(--spacing-xs) var(--spacing-sm);
 			background-color: var(--bg-secondary);
-			border: 2px solid var(--accent-yellow);
+			border: 2px solid var(--text-secondary);
 			border-radius: var(--radius-md);
 			font-size: 12px;
 			cursor: pointer;
@@ -79,9 +78,9 @@
 			.icon {
 				display: flex;
 				pointer-events: none;
+				color: var(--text-primary);
 
 				&.chevron {
-					color: var(--accent-yellow);
 					transition: transform var(--transition-fast);
 				}
 
@@ -92,7 +91,7 @@
 
 			.label {
 				flex-grow: 1;
-				color: var(--accent-yellow);
+				color: var(--text-primary);
 				white-space: nowrap;
 				overflow: hidden;
 				text-align: start;
@@ -101,6 +100,7 @@
 
 			&:hover {
 				background-color: var(--bg-tertiary);
+				border-color: var(--text-primary);
 			}
 		}
 
