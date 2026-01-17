@@ -1,6 +1,6 @@
 <script lang="ts">
-	import GroupNode from '$lib/components/nodes/Group.svelte';
-	import TabNode from '$lib/components/nodes/Tab.svelte';
+	import GroupNode from './Group.svelte';
+	import TabNode from './Tab.svelte';
 
 	import { ChevronDown, AppWindow } from 'lucide-svelte';
 

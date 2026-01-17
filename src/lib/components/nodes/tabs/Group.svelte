@@ -1,5 +1,5 @@
 <script lang="ts">
-	import TabNode from '$lib/components/nodes/Tab.svelte';
+	import TabNode from './Tab.svelte';
 
 	import { ChevronDown } from 'lucide-svelte';
 
