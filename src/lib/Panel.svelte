@@ -80,12 +80,15 @@
 	}
 
 	.header {
+		position: fixed;
 		height: 36px;
+		width: 100%;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		gap: var(--spacing-sm);
 		padding: 0 var(--spacing-md);
+		background-color: var(--bg-secondary);
 		border-bottom: 1px solid var(--bg-tertiary);
 
 		.icon {
@@ -97,7 +100,7 @@
 		.search {
 			width: 100%;
 			padding: var(--spacing-sm);
-			background: var(--bg-primary);
+			background: var(--bg-secondary);
 			border: none;
 			color: var(--text-primary);
 			font-family: inherit;
@@ -111,6 +114,7 @@
 
 	.tree {
 		height: 100%;
+		margin: 36px 0px;
 		flex-grow: 1;
 		display: flex;
 		flex-direction: column;
