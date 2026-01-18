@@ -1,16 +1,27 @@
 <script lang="ts">
 	import WindowNode from './Window.svelte';
 
-	import { ChevronDown, PanelsTopLeft } from 'lucide-svelte';
+	import { ChevronDown, PanelsTopLeft, Star } from 'lucide-svelte';
 
 	import { WindowGroup } from '$lib/core/types';
 
 	interface Props {
 		group: WindowGroup;
-		title: string;
+		title: 'Opened' | 'Bookmarked';
 		query: string;
 	}
 	let props: Props = $props();
+
+	let accent = $derived.by(() => {
+		switch (props.title) {
+			case 'Opened':
+				return 'var(--accent-green)';
+			case 'Bookmarked':
+				return 'var(--accent-yellow)';
+			default:
+				return 'var(--accent-blue)';
+		}
+	});
 
 	// Collapsed
 	let collapsed = $state(false);
@@ -32,10 +43,15 @@
 	}
 </script>
 
-<div class="group" class:collapsed class:hidden={!visibleContentExists}>
+<div class="group" class:collapsed class:hidden={!visibleContentExists} style="--accent: {accent};">
 	<button class="header" onclick={onToggle}>
 		<div class="icon">
-			<PanelsTopLeft size={16} />
+			{#if props.title === 'Opened'}
+				<PanelsTopLeft size={16} />
+			{/if}
+			{#if props.title === 'Bookmarked'}
+				<Star size={16} />
+			{/if}
 		</div>
 		<span class="label">{props.title}</span>
 		<div class="icon chevron">
@@ -56,7 +72,9 @@
 		display: flex;
 		flex-direction: column;
 		align-items: stretch;
-		gap: var(--spacing-sm);
+		border: 2px solid var(--accent);
+		border-radius: var(--radius-md);
+		overflow: hidden;
 
 		.header {
 			width: 100%;
@@ -65,22 +83,22 @@
 			gap: var(--spacing-sm);
 			padding: var(--spacing-xs) var(--spacing-sm);
 			background-color: var(--bg-secondary);
-			border: 2px solid var(--text-secondary);
-			border-radius: var(--radius-md);
+			border: none;
+			border-bottom: 2px solid var(--accent);
 			font-size: 12px;
 			cursor: pointer;
 			transition: background var(--transition-fast);
 
 			.icon {
 				display: flex;
-				color: var(--text-primary);
+				color: var(--accent);
 				pointer-events: none;
 				transition: transform var(--transition-fast);
 			}
 
 			.label {
 				flex-grow: 1;
-				color: var(--text-primary);
+				color: var(--accent);
 				white-space: nowrap;
 				overflow: hidden;
 				text-align: start;
@@ -89,7 +107,6 @@
 
 			&:hover {
 				background-color: var(--bg-tertiary);
-				border-color: var(--text-primary);
 			}
 		}
 
@@ -98,13 +115,18 @@
 			flex-direction: column;
 			align-items: start;
 			gap: var(--spacing-xs);
-			padding-left: var(--spacing-md);
+			padding: var(--spacing-md);
+			padding-right: 0px;
 			overflow: hidden;
 		}
 
 		&.collapsed {
-			.chevron {
-				transform: rotate(-90deg);
+			.header {
+				border: none;
+
+				.chevron {
+					transform: rotate(-90deg);
+				}
 			}
 
 			.children {

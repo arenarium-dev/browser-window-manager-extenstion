@@ -124,7 +124,7 @@
 			{/key}
 			{#key windowGroupStored}
 				{#if windowGroupStored}
-					<WindowGroupNode group={windowGroupStored} title="Stored" query={searchQuery} />
+					<WindowGroupNode group={windowGroupStored} title="Bookmarked" query={searchQuery} />
 				{/if}
 			{/key}
 		{/if}

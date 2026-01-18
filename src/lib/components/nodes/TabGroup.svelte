@@ -39,12 +39,7 @@
 	}
 </script>
 
-<div
-	class="group"
-	class:collapsed
-	class:hidden={!visible}
-	style="--group-color: {props.group.color}"
->
+<div class="group" class:collapsed class:hidden={!visible} style="--group-color: {props.group.color}">
 	<button class="header" onclick={onToggle}>
 		<div class="circle"></div>
 		<span class="label">{props.group.title}</span>
