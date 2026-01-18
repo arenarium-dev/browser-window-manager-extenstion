@@ -5,7 +5,7 @@
 
 	import WindowGroupNode from '$lib/components/nodes/WindowGroup.svelte';
 
-	import { getWindows } from '$lib/core/chrome';
+	import { Windows } from '$lib/core/chrome';
 	import type { WindowGroup } from '$lib/core/types';
 
 	let loading = $state(true);
@@ -22,8 +22,11 @@
 			try {
 				// Set loading to false
 				loading = false;
+
 				// Get all windows and bookmarks
-				windowGroupOpened = await getWindows();
+				windowGroupOpened = await Windows.Opened.get();
+				windowGroupStored = await Windows.Stored.get();
+
 				// Focus search input after load
 				setTimeout(() => searchInput?.focus(), 0);
 			} catch (e) {
@@ -42,13 +45,7 @@
 		<div class="icon">
 			<Search size={16} />
 		</div>
-		<input
-			bind:this={searchInput}
-			bind:value={searchQuery}
-			type="text"
-			class="search"
-			placeholder="Search..."
-		/>
+		<input bind:this={searchInput} bind:value={searchQuery} type="text" class="search" placeholder="Search..." />
 	</header>
 
 	<div class="tree">
@@ -63,8 +60,13 @@
 				<span>Failed to load tabs</span>
 				<small>{error}</small>
 			</div>
-		{:else if windowGroupOpened}
-			<WindowGroupNode group={windowGroupOpened} title="Opened" query={searchQuery} />
+		{:else}
+			{#if windowGroupOpened}
+				<WindowGroupNode group={windowGroupOpened} title="Opened" query={searchQuery} />
+			{/if}
+			{#if windowGroupStored}
+				<WindowGroupNode group={windowGroupStored} title="Stored" query={searchQuery} />
+			{/if}
 		{/if}
 	</div>
 </div>

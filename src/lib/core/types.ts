@@ -21,8 +21,8 @@ export class Window implements Queryable {
 	id: number;
 	items: (Tab | TabGroup)[];
 
-	constructor(window: chrome.windows.Window) {
-		this.id = window.id ?? -1;
+	constructor(id: number) {
+		this.id = id;
 		this.items = [];
 	}
 
@@ -35,17 +35,17 @@ export class Window implements Queryable {
 }
 
 export class TabGroup implements Queryable {
-	id: number | undefined;
-	windowId: number | undefined;
-	title: string | undefined;
-	color: chrome.tabGroups.ColorEnum;
+	id?: number;
+	windowId?: number;
+	color?: string;
+	title?: string;
 	tabs: Tab[];
 
-	constructor(group: chrome.tabGroups.TabGroup) {
-		this.id = group.id;
-		this.windowId = group.windowId;
-		this.title = group.title;
-		this.color = group.color;
+	constructor(options: { id?: number; windowId?: number; color?: string; title?: string }) {
+		this.id = options.id;
+		this.windowId = options.windowId;
+		this.color = options.color;
+		this.title = options.title;
 		this.tabs = [];
 	}
 
@@ -61,20 +61,27 @@ export class TabGroup implements Queryable {
 }
 
 export class Tab implements Queryable {
-	id: number | undefined;
-	groupId: number | undefined;
-	windowId: number | undefined;
-	url: string | undefined;
-	title: string | undefined;
-	icon: string | undefined;
+	id?: number;
+	windowId?: number;
+	groupId?: number;
+	url?: string;
+	title?: string;
+	icon?: string;
 
-	constructor(tab: chrome.tabs.Tab) {
-		this.id = tab.id;
-		this.groupId = tab.groupId;
-		this.windowId = tab.windowId;
-		this.title = tab.title ?? tab.url;
-		this.url = tab.url;
-		this.icon = tab.favIconUrl;
+	constructor(options: {
+		id?: number;
+		windowId?: number;
+		groupId?: number;
+		url?: string;
+		title?: string;
+		icon?: string;
+	}) {
+		this.id = options.id;
+		this.windowId = options.windowId;
+		this.groupId = options.groupId;
+		this.url = options.url;
+		this.title = options.title;
+		this.icon = options.icon;
 
 		// Use Google's favicon service for bookmark icons
 		if (!this.icon && this.url) {
