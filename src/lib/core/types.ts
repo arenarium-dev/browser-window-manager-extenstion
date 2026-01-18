@@ -34,32 +34,6 @@ export class Window implements Queryable {
 	}
 }
 
-export class TabGroup implements Queryable {
-	id?: number;
-	windowId?: number;
-	color?: string;
-	title?: string;
-	tabs: Tab[];
-
-	constructor(options: { id?: number; windowId?: number; color?: string; title?: string }) {
-		this.id = options.id;
-		this.windowId = options.windowId;
-		this.color = options.color;
-		this.title = options.title;
-		this.tabs = [];
-	}
-
-	matches(query: string): boolean {
-		const lowerQuery = query.trim().toLowerCase();
-		if (!lowerQuery) return true;
-
-		const lowerTitle = this.title?.toLowerCase();
-		if (lowerTitle?.includes(lowerQuery)) return true;
-
-		return this.tabs.some((tab) => tab.matches(lowerQuery));
-	}
-}
-
 export class Tab implements Queryable {
 	id?: number;
 	windowId?: number;
@@ -105,5 +79,31 @@ export class Tab implements Queryable {
 		if (lowerUrl?.includes(lowerQuery)) return true;
 
 		return false;
+	}
+}
+
+export class TabGroup implements Queryable {
+	id?: number;
+	windowId?: number;
+	color?: string;
+	title?: string;
+	tabs: Tab[];
+
+	constructor(options: { id?: number; windowId?: number; color?: string; title?: string }) {
+		this.id = options.id;
+		this.windowId = options.windowId;
+		this.color = options.color;
+		this.title = options.title;
+		this.tabs = [];
+	}
+
+	matches(query: string): boolean {
+		const lowerQuery = query.trim().toLowerCase();
+		if (!lowerQuery) return true;
+
+		const lowerTitle = this.title?.toLowerCase();
+		if (lowerTitle?.includes(lowerQuery)) return true;
+
+		return this.tabs.some((tab) => tab.matches(lowerQuery));
 	}
 }

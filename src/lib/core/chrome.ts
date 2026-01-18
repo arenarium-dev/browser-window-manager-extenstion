@@ -20,7 +20,9 @@ export namespace Windows {
 				let windowTabGroups = new Map<number, TabGroup>();
 
 				// Process tabs
-				for (const chromeTab of chromeWindow.tabs) {
+				for (let i = 0; i < chromeWindow.tabs.length; i++) {
+					// Get the tab
+					const chromeTab = chromeWindow.tabs[i];
 					// Skip if tab is does not have an id
 					if (!chromeTab.id) continue;
 					// Skip if tab does not have a url
@@ -271,33 +273,43 @@ export namespace Windows {
 
 		export async function open(windowGroup: WindowGroup) {
 			for (const window of windowGroup.windows) {
-				const chromeWindow = await chrome.windows.create();
+				const chromeWindow = await chrome.windows.create({ focused: true });
 				if (!chromeWindow) continue;
 				if (!chromeWindow.id) continue;
+				if (!chromeWindow.tabs) continue;
 
-				// Focus the window
-				await chrome.windows.update(chromeWindow.id, { focused: true });
+				let chromeEmptyTab: chrome.tabs.Tab | undefined = chromeWindow.tabs[0];
+
+				const addTab = async (tab: Tab) => {
+					// Create the tab
+					const chromeTab = await chrome.tabs.create({ url: tab.url, windowId: chromeWindow.id, active: false });
+					// Remove the empty tab if it exists
+					if (chromeEmptyTab?.id) await chrome.tabs.remove(chromeEmptyTab.id);
+					// Clear the empty tab
+					chromeEmptyTab = undefined;
+					// Return the created tab
+					return chromeTab;
+				}
 
 				for (const item of window.items) {
-					// Create a tab
 					if (item instanceof Tab) {
-						await chrome.tabs.create({ url: item.url, windowId: chromeWindow.id });
+						// Add the tab
+						await addTab(item);
+						// Proceed to the next item
 						continue;
 					}
 
-					// Create a tab group
 					if (item instanceof TabGroup) {
-						// Create the tabs
+						// Add all the group tabs to the window
 						const chromeTabs = [];
-
 						for (const tab of item.tabs) {
-							const chromeTab = await chrome.tabs.create({ url: tab.url, windowId: chromeWindow.id });
-							if (!chromeTab.id) continue;
+							const chromeTab = await addTab(tab);
 							chromeTabs.push(chromeTab);
 						}
 
 						// Group the tabs
 						const chromeTabGroupId = await chrome.tabs.group({
+							createProperties: { windowId: chromeWindow.id },
 							tabIds: chromeTabs.map((tab) => tab.id).filter((id) => id !== undefined)
 						});
 						if (!chromeTabGroupId) continue;
