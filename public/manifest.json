@@ -3,7 +3,7 @@
 	"manifest_version": 3,
 	"name": "Window Manager",
 	"version": "1.0.0",
-	"description": "View and manage your windows, tabs, and tab groups",
+	"description": "View and store your windows, tabs, and tab groups in bookmarks",
 	"permissions": ["bookmarks", "tabs", "tabGroups", "sidePanel"],
 	"action": {
 		"default_title": "Window Manager"
