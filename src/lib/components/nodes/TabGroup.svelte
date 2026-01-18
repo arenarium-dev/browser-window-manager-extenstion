@@ -54,7 +54,7 @@
 	</button>
 
 	<div class="children">
-		{#each visibleTabs as tab (tab.id)}
+		{#each visibleTabs as tab}
 			<TabNode {tab} query={props.query} />
 		{/each}
 	</div>

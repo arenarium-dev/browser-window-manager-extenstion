@@ -70,6 +70,34 @@ export namespace Windows {
 
 			return windowGroup;
 		}
+
+		export function subscribe(callback: () => void) {
+			chrome.windows.onCreated.addListener(callback);
+			chrome.windows.onRemoved.addListener(callback);
+			chrome.tabs.onCreated.addListener(callback);
+			chrome.tabs.onRemoved.addListener(callback);
+			chrome.tabs.onUpdated.addListener(callback);
+			chrome.tabs.onMoved.addListener(callback);
+			chrome.tabs.onReplaced.addListener(callback);
+			chrome.tabGroups.onCreated.addListener(callback);
+			chrome.tabGroups.onRemoved.addListener(callback);
+			chrome.tabGroups.onUpdated.addListener(callback);
+			chrome.tabGroups.onMoved.addListener(callback);
+		}
+
+		export function unsubscribe(callback: () => void) {
+			chrome.windows.onCreated.removeListener(callback);
+			chrome.windows.onRemoved.removeListener(callback);
+			chrome.tabs.onCreated.removeListener(callback);
+			chrome.tabs.onRemoved.removeListener(callback);
+			chrome.tabs.onUpdated.removeListener(callback);
+			chrome.tabs.onMoved.removeListener(callback);
+			chrome.tabs.onReplaced.removeListener(callback);
+			chrome.tabGroups.onCreated.removeListener(callback);
+			chrome.tabGroups.onRemoved.removeListener(callback);
+			chrome.tabGroups.onUpdated.removeListener(callback);
+			chrome.tabGroups.onMoved.removeListener(callback);
+		}
 	}
 
 	export namespace Stored {
@@ -151,6 +179,7 @@ export namespace Windows {
 							tabGroup.tabs.push(tab);
 						}
 
+						console.log('Tab group has tabs:', tabGroup.tabs.length);
 						window.items.push(tabGroup);
 						continue;
 					}
@@ -168,11 +197,12 @@ export namespace Windows {
 			let chromeWindowsRootResults = await chrome.bookmarks.search({ title: STORAGE_ROOT_NAME });
 			let chromeWindowsRoot = chromeWindowsRootResults.find((n) => !n.url && n.title === STORAGE_ROOT_NAME);
 
+			// Clear the root folder if it exists
+			if (chromeWindowsRoot) await chrome.bookmarks.removeTree(chromeWindowsRoot.id);
+
 			// Create the root folder if it doesn't exist
-			if (!chromeWindowsRoot) {
-				chromeWindowsRoot = await chrome.bookmarks.create({ title: STORAGE_ROOT_NAME });
-			}
-			if (!chromeWindowsRoot.id) return;
+			chromeWindowsRoot = await chrome.bookmarks.create({ title: STORAGE_ROOT_NAME });
+			if (!chromeWindowsRoot.id) throw new Error('Failed to create root folder');
 
 			// Process each window in the window group
 			for (const window of windowGroup.windows) {
@@ -186,19 +216,22 @@ export namespace Windows {
 					parentId: chromeWindowsRoot.id,
 					title: JSON.stringify(windowFolderData)
 				});
-				if (!windowFolder.id) continue;
+				if (!windowFolder.id) throw new Error('Failed to create window folder');
 
 				// Process each item in the window
 				for (const item of window.items) {
 					// If the item is a Tab, create a bookmark
 					if (item instanceof Tab) {
+						// Return if the tab does not have a url
 						if (!item.url) continue;
 
+						// Create the bookmark
 						await chrome.bookmarks.create({
 							parentId: windowFolder.id,
 							title: item.title || item.url,
 							url: item.url
 						});
+						// Continue to the next item
 						continue;
 					}
 
@@ -214,19 +247,22 @@ export namespace Windows {
 							parentId: windowFolder.id,
 							title: JSON.stringify(tabGroupFolderData)
 						});
-
-						if (!tabGroupFolder.id) continue;
+						if (!tabGroupFolder.id) throw new Error('Failed to create tab group folder');
 
 						// Create bookmarks for each tab in the group
 						for (const tab of item.tabs) {
+							// Return if the tab does not have a url
 							if (!tab.url) continue;
 
+							// Create the bookmark
 							await chrome.bookmarks.create({
 								parentId: tabGroupFolder.id,
 								title: tab.title || tab.url,
 								url: tab.url
 							});
 						}
+
+						// Continue to the next item
 						continue;
 					}
 				}
@@ -237,6 +273,10 @@ export namespace Windows {
 			for (const window of windowGroup.windows) {
 				const chromeWindow = await chrome.windows.create();
 				if (!chromeWindow) continue;
+				if (!chromeWindow.id) continue;
+
+				// Focus the window
+				await chrome.windows.update(chromeWindow.id, { focused: true });
 
 				for (const item of window.items) {
 					// Create a tab
@@ -248,11 +288,13 @@ export namespace Windows {
 					// Create a tab group
 					if (item instanceof TabGroup) {
 						// Create the tabs
-						const chromeTabs = await Promise.all(
-							item.tabs.map(async (tab) => {
-								return await chrome.tabs.create({ url: tab.url, windowId: chromeWindow.id });
-							})
-						);
+						const chromeTabs = [];
+
+						for (const tab of item.tabs) {
+							const chromeTab = await chrome.tabs.create({ url: tab.url, windowId: chromeWindow.id });
+							if (!chromeTab.id) continue;
+							chromeTabs.push(chromeTab);
+						}
 
 						// Group the tabs
 						const chromeTabGroupId = await chrome.tabs.group({

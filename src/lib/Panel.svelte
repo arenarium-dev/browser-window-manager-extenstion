@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount, tick } from 'svelte';
 
-	import { Search, SquareX } from 'lucide-svelte';
+	import { Search, SquareX, Download, Upload, RefreshCw } from 'lucide-svelte';
 
 	import WindowGroupNode from '$lib/components/nodes/WindowGroup.svelte';
 
@@ -17,6 +17,39 @@
 	let windowGroupOpened = $state<WindowGroup | null>(null);
 	let windowGroupStored = $state<WindowGroup | null>(null);
 
+	let hasStoredWindows = $derived(windowGroupStored !== null && windowGroupStored.windows.length > 0);
+
+	async function onOpen() {
+		// Check if there are stored windows
+		if (!windowGroupStored || windowGroupStored.windows.length === 0) return;
+
+		try {
+			// Open the stored windows
+			await Windows.Stored.open(windowGroupStored);
+		} catch (e) {
+			error = String(e);
+		}
+	}
+
+	async function onSave() {
+		// Check if there are opened windows
+		if (!windowGroupOpened) return;
+
+		try {
+			// Save the opened windows
+			await Windows.Stored.save(windowGroupOpened);
+			// Refresh stored windows after saving
+			windowGroupStored = await Windows.Stored.get();
+		} catch (e) {
+			error = String(e);
+		}
+	}
+
+	function onSync() {
+		// To be implemented later
+		console.log('Sync functionality to be implemented');
+	}
+
 	onMount(async () => {
 		setTimeout(async () => {
 			try {
@@ -29,6 +62,11 @@
 
 				// Focus search input after load
 				setTimeout(() => searchInput?.focus(), 0);
+
+				// Subscribe to chrome events
+				Windows.Opened.subscribe(async () => {
+					windowGroupOpened = await Windows.Opened.get();
+				});
 			} catch (e) {
 				// Set error
 				error = String(e);
@@ -38,6 +76,13 @@
 			}
 		}, 0);
 	});
+
+	onDestroy(() => {
+		// Unsubscribe from chrome events
+		Windows.Opened.unsubscribe(async () => {
+			windowGroupOpened = await Windows.Opened.get();
+		});
+	});
 </script>
 
 <div class="container">
@@ -46,6 +91,17 @@
 			<Search size={16} />
 		</div>
 		<input bind:this={searchInput} bind:value={searchQuery} type="text" class="search" placeholder="Search..." />
+		<div class="actions">
+			<button class="action-button" class:disabled={!hasStoredWindows} onclick={onOpen} title="Open stored windows" disabled={!hasStoredWindows}>
+				<Upload size={16} />
+			</button>
+			<button class="action-button" onclick={onSave} title="Save current windows">
+				<Download size={16} />
+			</button>
+			<button class="action-button" onclick={onSync} title="Sync periodically">
+				<RefreshCw size={16} />
+			</button>
+		</div>
 	</header>
 
 	<div class="tree">
@@ -61,12 +117,16 @@
 				<small>{error}</small>
 			</div>
 		{:else}
-			{#if windowGroupOpened}
-				<WindowGroupNode group={windowGroupOpened} title="Opened" query={searchQuery} />
-			{/if}
-			{#if windowGroupStored}
-				<WindowGroupNode group={windowGroupStored} title="Stored" query={searchQuery} />
-			{/if}
+			{#key windowGroupOpened}
+				{#if windowGroupOpened}
+					<WindowGroupNode group={windowGroupOpened} title="Opened" query={searchQuery} />
+				{/if}
+			{/key}
+			{#key windowGroupStored}
+				{#if windowGroupStored}
+					<WindowGroupNode group={windowGroupStored} title="Stored" query={searchQuery} />
+				{/if}
+			{/key}
 		{/if}
 	</div>
 </div>
@@ -81,7 +141,7 @@
 
 	.header {
 		position: fixed;
-		height: 36px;
+		height: 48px;
 		width: 100%;
 		display: flex;
 		align-items: center;
@@ -89,7 +149,7 @@
 		gap: var(--spacing-sm);
 		padding: 0 var(--spacing-md);
 		background-color: var(--bg-secondary);
-		border-bottom: 1px solid var(--bg-tertiary);
+		border-bottom: 2px solid var(--bg-tertiary);
 
 		.icon {
 			display: flex;
@@ -98,7 +158,7 @@
 		}
 
 		.search {
-			width: 100%;
+			flex: 1;
 			padding: var(--spacing-sm);
 			background: var(--bg-secondary);
 			border: none;
@@ -110,11 +170,46 @@
 				color: var(--text-muted);
 			}
 		}
+
+		.actions {
+			display: flex;
+			align-items: center;
+			gap: var(--spacing-xs);
+		}
+
+		.action-button {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 28px;
+			height: 28px;
+			border-radius: 50%;
+			border: none;
+			background: var(--bg-tertiary);
+			color: var(--text-secondary);
+			cursor: pointer;
+			transition: all var(--transition-fast);
+			padding: 0;
+
+			&:hover:not(:disabled) {
+				background: var(--bg-hover);
+				color: var(--text-primary);
+			}
+
+			&:active:not(:disabled) {
+				transform: scale(0.95);
+			}
+
+			&:disabled {
+				opacity: 0.4;
+				cursor: not-allowed;
+			}
+		}
 	}
 
 	.tree {
 		height: 100%;
-		margin: 36px 0px;
+		margin: 48px 0px;
 		flex-grow: 1;
 		display: flex;
 		flex-direction: column;
