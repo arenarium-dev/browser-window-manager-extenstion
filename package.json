@@ -6,7 +6,9 @@
 	"scripts": {
 		"dev": "vite",
 		"build": "vite build",
+		"build:worker": "vite build --config src/worker/vite.config.ts",
 		"build:watch": "vite build --watch",
+		"build:watch:worker": "vite build --watch --config src/worker/vite.config.ts",
 		"preview": "vite preview",
 		"check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
 		"format": "prettier --write .",

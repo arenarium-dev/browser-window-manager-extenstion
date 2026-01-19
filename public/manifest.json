@@ -4,7 +4,7 @@
 	"name": "Window Manager",
 	"version": "1.0.0",
 	"description": "View and store your windows, tabs, and tab groups in bookmarks",
-	"permissions": ["bookmarks", "tabs", "tabGroups", "sidePanel"],
+	"permissions": ["bookmarks", "tabs", "tabGroups", "sidePanel", "alarms", "storage"],
 	"action": {
 		"default_title": "Window Manager"
 	},

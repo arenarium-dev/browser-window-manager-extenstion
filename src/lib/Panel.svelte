@@ -1,11 +1,21 @@
 <script lang="ts">
-	import { onDestroy, onMount, tick } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 
 	import { Search, SquareX, Download, Upload, RefreshCw } from 'lucide-svelte';
 
 	import WindowGroupNode from '$lib/components/nodes/WindowGroup.svelte';
 
-	import { Windows } from '$lib/core/chrome';
+	import {
+		getOpenedWindows,
+		getBookmarkedWindows,
+		getSyncEnabled,
+		setSyncEnabled,
+		openWindows,
+		bookmarkWindows,
+		subscribeOpenedWindows,
+		unsubscribeOpenedWindows,
+		syncWindows
+	} from '$lib/core/chrome';
 	import type { WindowGroup } from '$lib/core/types';
 
 	let loading = $state(true);
@@ -14,41 +24,10 @@
 	let searchQuery = $state('');
 	let searchInput = $state<HTMLInputElement | null>(null);
 
-	let windowGroupOpened = $state<WindowGroup | null>(null);
-	let windowGroupStored = $state<WindowGroup | null>(null);
+	let windowsOpened = $state<WindowGroup | null>(null);
+	let windowsBookmarked = $state<WindowGroup | null>(null);
 
-	let hasStoredWindows = $derived(windowGroupStored !== null && windowGroupStored.windows.length > 0);
-
-	async function onOpen() {
-		// Check if there are stored windows
-		if (!windowGroupStored || windowGroupStored.windows.length === 0) return;
-
-		try {
-			// Open the stored windows
-			await Windows.Stored.open(windowGroupStored);
-		} catch (e) {
-			error = String(e);
-		}
-	}
-
-	async function onSave() {
-		// Check if there are opened windows
-		if (!windowGroupOpened) return;
-
-		try {
-			// Save the opened windows
-			await Windows.Stored.save(windowGroupOpened);
-			// Refresh stored windows after saving
-			windowGroupStored = await Windows.Stored.get();
-		} catch (e) {
-			error = String(e);
-		}
-	}
-
-	function onSync() {
-		// To be implemented later
-		console.log('Sync functionality to be implemented');
-	}
+	let windowsSyncEnabled = $state(false);
 
 	onMount(async () => {
 		setTimeout(async () => {
@@ -57,15 +36,20 @@
 				loading = false;
 
 				// Get all windows and bookmarks
-				windowGroupOpened = await Windows.Opened.get();
-				windowGroupStored = await Windows.Stored.get();
+				windowsOpened = await getOpenedWindows();
+				windowsBookmarked = await getBookmarkedWindows();
+
+				console.log(chrome);
+
+				// Load sync state
+				windowsSyncEnabled = await getSyncEnabled();
 
 				// Focus search input after load
 				setTimeout(() => searchInput?.focus(), 0);
 
 				// Subscribe to chrome events
-				Windows.Opened.subscribe(async () => {
-					windowGroupOpened = await Windows.Opened.get();
+				subscribeOpenedWindows(async () => {
+					windowsOpened = await getOpenedWindows();
 				});
 			} catch (e) {
 				// Set error
@@ -79,10 +63,53 @@
 
 	onDestroy(() => {
 		// Unsubscribe from chrome events
-		Windows.Opened.unsubscribe(async () => {
-			windowGroupOpened = await Windows.Opened.get();
+		unsubscribeOpenedWindows(async () => {
+			windowsOpened = await getOpenedWindows();
 		});
 	});
+
+	async function onOpen() {
+		// Check if there are stored windows
+		if (!windowsBookmarked) return;
+
+		try {
+			// Open the stored windows
+			await openWindows(windowsBookmarked);
+		} catch (e) {
+			error = String(e);
+		}
+	}
+
+	async function onSave() {
+		// Check if there are opened windows
+		if (!windowsOpened) return;
+
+		try {
+			// Save the opened windows
+			await bookmarkWindows(windowsOpened);
+			// Refresh stored windows after saving
+			windowsBookmarked = await getBookmarkedWindows();
+		} catch (e) {
+			error = String(e);
+		}
+	}
+
+	async function onSync() {
+		try {
+			// Toggle the sync enabled state
+			await setSyncEnabled(!windowsSyncEnabled);
+			// Get the new sync enabled state
+			windowsSyncEnabled = await getSyncEnabled();
+
+			// Sync the windows if sync is enabled
+			if (windowsSyncEnabled) {
+				console.log('Syncing windows');
+				await syncWindows();
+			}
+		} catch (e) {
+			error = String(e);
+		}
+	}
 </script>
 
 <div class="container">
@@ -92,13 +119,13 @@
 		</div>
 		<input bind:this={searchInput} bind:value={searchQuery} type="text" class="search" placeholder="Search..." />
 		<div class="actions">
-			<button class="action-button" class:disabled={!hasStoredWindows} onclick={onOpen} title="Open stored windows" disabled={!hasStoredWindows}>
+			<button class="button" onclick={onOpen} title="Open stored windows">
 				<Upload size={16} />
 			</button>
-			<button class="action-button" onclick={onSave} title="Save current windows">
+			<button class="button" onclick={onSave} title="Save current windows">
 				<Download size={16} />
 			</button>
-			<button class="action-button" onclick={onSync} title="Sync periodically">
+			<button class="button" onclick={onSync} class:enabled={windowsSyncEnabled} title="Sync periodically">
 				<RefreshCw size={16} />
 			</button>
 		</div>
@@ -117,14 +144,14 @@
 				<small>{error}</small>
 			</div>
 		{:else}
-			{#key windowGroupOpened}
-				{#if windowGroupOpened}
-					<WindowGroupNode group={windowGroupOpened} title="Opened" query={searchQuery} />
+			{#key windowsOpened}
+				{#if windowsOpened}
+					<WindowGroupNode group={windowsOpened} title="Opened" query={searchQuery} />
 				{/if}
 			{/key}
-			{#key windowGroupStored}
-				{#if windowGroupStored}
-					<WindowGroupNode group={windowGroupStored} title="Bookmarked" query={searchQuery} />
+			{#key windowsBookmarked}
+				{#if windowsBookmarked}
+					<WindowGroupNode group={windowsBookmarked} title="Bookmarked" query={searchQuery} />
 				{/if}
 			{/key}
 		{/if}
@@ -175,34 +202,44 @@
 			display: flex;
 			align-items: center;
 			gap: var(--spacing-xs);
-		}
 
-		.action-button {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			width: 28px;
-			height: 28px;
-			border-radius: 50%;
-			border: none;
-			background: var(--bg-tertiary);
-			color: var(--text-secondary);
-			cursor: pointer;
-			transition: all var(--transition-fast);
-			padding: 0;
+			.button {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 28px;
+				height: 28px;
+				border-radius: 50%;
+				border: none;
+				background: var(--bg-tertiary);
+				color: var(--text-secondary);
+				cursor: pointer;
+				transition: all var(--transition-fast);
+				padding: 0;
 
-			&:hover:not(:disabled) {
-				background: var(--bg-hover);
-				color: var(--text-primary);
-			}
+				&:hover:not(:disabled) {
+					background: var(--bg-hover);
+					color: var(--text-primary);
+				}
 
-			&:active:not(:disabled) {
-				transform: scale(0.95);
-			}
+				&:active:not(:disabled) {
+					transform: scale(0.95);
+				}
 
-			&:disabled {
-				opacity: 0.4;
-				cursor: not-allowed;
+				&:disabled {
+					opacity: 0.4;
+					cursor: not-allowed;
+				}
+
+				&.enabled {
+					background: var(--accent-blue);
+					color: var(--bg-primary);
+
+					&:hover {
+						background: var(--accent-blue);
+						opacity: 0.9;
+					}
+				}
 			}
 		}
 	}
@@ -239,6 +276,7 @@
 	}
 
 	.empty {
+		width: 100%;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
