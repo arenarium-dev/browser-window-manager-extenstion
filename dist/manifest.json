@@ -1,0 +1,23 @@
+{
+	"$schema": "https://json.schemastore.org/chrome-manifest",
+	"manifest_version": 3,
+	"name": "Window Manager",
+	"version": "1.0.0",
+	"description": "View and store your windows, tabs, and tab groups in bookmarks",
+	"permissions": ["bookmarks", "tabs", "tabGroups", "sidePanel", "alarms", "storage"],
+	"action": {
+		"default_title": "Window Manager"
+	},
+	"side_panel": {
+		"default_path": "index.html"
+	},
+	"background": {
+		"service_worker": "worker.js"
+	},
+	"icons": {
+		"16": "icon.png",
+		"32": "icon.png",
+		"48": "icon.png",
+		"128": "icon.png"
+	}
+}
