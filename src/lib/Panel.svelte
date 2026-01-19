@@ -119,13 +119,13 @@
 		</div>
 		<input bind:this={searchInput} bind:value={searchQuery} type="text" class="search" placeholder="Search..." />
 		<div class="actions">
-			<button class="button" onclick={onOpen} title="Open stored windows">
+			<button class="button" onclick={onOpen} title="Open bookmarked windows">
 				<Upload size={16} />
 			</button>
-			<button class="button" onclick={onSave} title="Save current windows">
+			<button class="button" onclick={onSave} title="Bookmark opened windows">
 				<Download size={16} />
 			</button>
-			<button class="button" onclick={onSync} class:enabled={windowsSyncEnabled} title="Sync periodically">
+			<button class="button" onclick={onSync} class:enabled={windowsSyncEnabled} title="Sync opened to bookmarks periodically">
 				<RefreshCw size={16} />
 			</button>
 		</div>
