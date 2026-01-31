@@ -37,7 +37,7 @@
 		<div class="icon">
 			<AppWindow size={16} />
 		</div>
-		<span class="label">{`Window ${props.window.id}`}</span>
+		<span class="label">{`Window ${props.window.index}`}</span>
 		<div class="icon chevron">
 			<ChevronDown size={16} />
 		</div>

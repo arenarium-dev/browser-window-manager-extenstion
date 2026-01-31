@@ -1,6 +1,8 @@
 class WindowGroup {
+  name;
   windows;
-  constructor() {
+  constructor(name) {
+    this.name = name;
     this.windows = [];
   }
   matches(query) {
@@ -10,10 +12,10 @@ class WindowGroup {
   }
 }
 class Window {
-  id;
+  index;
   items;
-  constructor(id) {
-    this.id = id;
+  constructor(index) {
+    this.index = index;
     this.items = [];
   }
   matches(query) {
@@ -80,7 +82,7 @@ const BOOKMARKS_ROOT_NAME = "TabManager";
 const BOOKMARKS_EMPTY_TAB_GROUP_TITLE = "Untitled";
 const BOOKMARKS_EMPTY_TAB_GROUP_COLOR = "grey";
 async function getOpenedWindows() {
-  let windowGroup = new WindowGroup();
+  let windowGroup = new WindowGroup("");
   let chromeWindows = await chrome.windows.getAll({ populate: true });
   for (const chromeWindow of chromeWindows) {
     if (!chromeWindow.id || !chromeWindow.tabs) continue;
@@ -122,18 +124,24 @@ async function getOpenedWindows() {
   return windowGroup;
 }
 async function bookmarkWindows(windowGroup) {
-  let chromeWindowsRootResults = await chrome.bookmarks.search({ title: BOOKMARKS_ROOT_NAME });
-  let chromeWindowsRoot = chromeWindowsRootResults.find((n) => !n.url && n.title === BOOKMARKS_ROOT_NAME);
-  if (chromeWindowsRoot) await chrome.bookmarks.removeTree(chromeWindowsRoot.id);
-  chromeWindowsRoot = await chrome.bookmarks.create({ title: BOOKMARKS_ROOT_NAME });
-  if (!chromeWindowsRoot.id) throw new Error("Failed to create root folder");
+  let chromeBookmarksRootResults = await chrome.bookmarks.search({ title: BOOKMARKS_ROOT_NAME });
+  let chromeBookmarksRoot = chromeBookmarksRootResults.find((n) => !n.url && n.title === BOOKMARKS_ROOT_NAME);
+  if (chromeBookmarksRoot == null) {
+    chromeBookmarksRoot = await chrome.bookmarks.create({ title: BOOKMARKS_ROOT_NAME });
+    if (!chromeBookmarksRoot.id) throw new Error("Failed to create root folder");
+  }
+  let chromeDayFolderNodes = await chrome.bookmarks.getChildren(chromeBookmarksRoot.id);
+  let chromeDayFolderName = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+  let chromeDayFolder = chromeDayFolderNodes.find((n) => !n.url && n.title === chromeDayFolderName);
+  if (chromeDayFolder) await chrome.bookmarks.removeTree(chromeDayFolder.id);
+  chromeDayFolder = await chrome.bookmarks.create({ parentId: chromeBookmarksRoot.id, title: chromeDayFolderName });
   for (const window of windowGroup.windows) {
     const windowFolderData = {
       type: "window",
-      index: window.id
+      index: window.index
     };
     const windowFolder = await chrome.bookmarks.create({
-      parentId: chromeWindowsRoot.id,
+      parentId: chromeDayFolder.id,
       title: JSON.stringify(windowFolderData)
     });
     if (!windowFolder.id) throw new Error("Failed to create window folder");
@@ -171,18 +179,30 @@ async function bookmarkWindows(windowGroup) {
     }
   }
 }
+async function pruneWindows(count) {
+  let chromeBookmarksRootResults = await chrome.bookmarks.search({ title: BOOKMARKS_ROOT_NAME });
+  let chromeBookmarksRoot = chromeBookmarksRootResults.find((n) => !n.url && n.title === BOOKMARKS_ROOT_NAME);
+  if (!chromeBookmarksRoot) return;
+  let chromeDayFolderNodes = await chrome.bookmarks.getChildren(chromeBookmarksRoot.id);
+  chromeDayFolderNodes.sort((a, b) => (b.dateAdded ?? 0) - (a.dateAdded ?? 0));
+  for (let i = count; i < chromeDayFolderNodes.length; i++) {
+    await chrome.bookmarks.removeTree(chromeDayFolderNodes[i].id);
+  }
+}
 async function syncWindows() {
   const windowGroup = await getOpenedWindows();
   await bookmarkWindows(windowGroup);
 }
 const SYNC_ALARM_NAME = "syncWindows";
-const SYNC_INTERVAL_MINUTES = 1;
+const SYNC_INTERVAL_MINUTES = 10;
+const PRUNE_COUNT = 10;
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name === SYNC_ALARM_NAME) {
     try {
       const syncEnabled = await chrome.storage.local.get("syncEnabled");
       if (!syncEnabled.syncEnabled) return;
       await syncWindows();
+      await pruneWindows(PRUNE_COUNT);
     } catch (error) {
       console.error("Background sync failed:", error);
     }

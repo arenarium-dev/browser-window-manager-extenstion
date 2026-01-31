@@ -25,7 +25,7 @@
 	let searchInput = $state<HTMLInputElement | null>(null);
 
 	let windowsOpened = $state<WindowGroup | null>(null);
-	let windowsBookmarked = $state<WindowGroup | null>(null);
+	let windowsBookmarked = $state<WindowGroup[] | null>(null);
 
 	let windowsSyncEnabled = $state(false);
 
@@ -38,8 +38,6 @@
 				// Get all windows and bookmarks
 				windowsOpened = await getOpenedWindows();
 				windowsBookmarked = await getBookmarkedWindows();
-
-				console.log(chrome);
 
 				// Load sync state
 				windowsSyncEnabled = await getSyncEnabled();
@@ -73,8 +71,12 @@
 		if (!windowsBookmarked) return;
 
 		try {
+			// Get the last stored window
+			const lastWindowGroup = windowsBookmarked.at(-1);
+			if (!lastWindowGroup) return;
+
 			// Open the stored windows
-			await openWindows(windowsBookmarked);
+			await openWindows(lastWindowGroup);
 		} catch (e) {
 			error = String(e);
 		}
@@ -150,9 +152,9 @@
 				{/if}
 			{/key}
 			{#key windowsBookmarked}
-				{#if windowsBookmarked}
-					<WindowGroupNode group={windowsBookmarked} title="Bookmarked" query={searchQuery} />
-				{/if}
+				{#each windowsBookmarked as windowGroup}
+					<WindowGroupNode group={windowGroup} title="Bookmarked" query={searchQuery} />
+				{/each}
 			{/key}
 		{/if}
 	</div>

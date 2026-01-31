@@ -53,7 +53,7 @@
 				<Star size={16} />
 			{/if}
 		</div>
-		<span class="label">{props.title}</span>
+		<span class="label">{props.title} {props.group.name}</span>
 		<div class="icon chevron">
 			<ChevronDown size={16} />
 		</div>

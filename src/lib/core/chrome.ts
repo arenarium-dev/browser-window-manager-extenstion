@@ -14,11 +14,11 @@ interface WindowFolderData {
 interface TabGroupFolderData {
 	type: 'tabgroup';
 	title: string;
-	color: chrome.tabGroups.ColorEnum;	
+	color: chrome.tabGroups.ColorEnum;
 }
 
 export async function getOpenedWindows(): Promise<WindowGroup> {
-	let windowGroup = new WindowGroup();
+	let windowGroup = new WindowGroup('');
 
 	// Get all windows
 	let chromeWindows = await chrome.windows.getAll({ populate: true });
@@ -116,104 +116,125 @@ export function unsubscribeOpenedWindows(callback: () => void) {
 	chrome.tabGroups.onMoved.removeListener(callback);
 }
 
-export async function getBookmarkedWindows(): Promise<WindowGroup> {
-	const windowGroup = new WindowGroup();
+export async function getBookmarkedWindows(): Promise<WindowGroup[]> {
+	const windowGroups = new Array<WindowGroup>();
 
 	// Find the root folder
-	const chromeWindowsRootResults = await chrome.bookmarks.search({ title: BOOKMARKS_ROOT_NAME });
-	const chromeWindowsRoot = chromeWindowsRootResults.find(
-		(node) => !node.url && node.title === BOOKMARKS_ROOT_NAME
-	);
-	if (!chromeWindowsRoot) return windowGroup;
+	const chromeBookmarksRootResults = await chrome.bookmarks.search({ title: BOOKMARKS_ROOT_NAME });
+	const chromeBookmarksRoot = chromeBookmarksRootResults.find((node) => !node.url && node.title === BOOKMARKS_ROOT_NAME);
+	if (!chromeBookmarksRoot) return windowGroups;
 
-	// Get the full subtree
-	const chromeWindowsRootSubtree = await chrome.bookmarks.getSubTree(chromeWindowsRoot.id);
-	const chromeWindowsRootNode = chromeWindowsRootSubtree[0];
-	if (!chromeWindowsRootNode.children) return windowGroup;
+	// Get the day child nodes of the root folder and all children
+	const chromeDaySubtree = await chrome.bookmarks.getSubTree(chromeBookmarksRoot.id);
+	const chromeDayNodes = chromeDaySubtree[0]?.children;
+	if (!chromeDayNodes) return windowGroups;
 
-	// Each child folder represents a stored window
-	for (const chromeWindowsNode of chromeWindowsRootNode.children) {
+	// Iterate over the day child nodes of the root folder
+	for (const chromeDayNode of chromeDayNodes) {
 		// Skip bookmarks at the root level (only folders are windows)
-		if (chromeWindowsNode.url) continue;
-		// Skip if the node does not have children
-		if (!chromeWindowsNode.children) continue;
+		if (chromeDayNode.url) continue;
+		// Create a new window group
+		const windowGroup = new WindowGroup(chromeDayNode.title);
 
-		// Parse the window folder data
-		const windowData = JSON.parse(chromeWindowsNode.title) as WindowFolderData;
-		if (!windowData) continue;
+		console.log('chromeDayNode', chromeDayNode);
 
-		// Create a new window
-		const window = new Window(windowData.index);
+		// Each child folder represents a stored window
+		for (const chromeWindowNode of chromeDayNode.children ?? []) {
+			// Skip bookmarks at the root level (only folders are windows)
+			if (chromeWindowNode.url) continue;
+			// Skip if the node does not have children
+			if (!chromeWindowNode.children) continue;
 
-		// Process the window items
-		for (const chromeWindowItemNode of chromeWindowsNode.children) {
-			// If the item is a bookmark, create a tab
-			if (chromeWindowItemNode.url) {
-				const tab = new Tab({
-					url: chromeWindowItemNode.url,
-					title: chromeWindowItemNode.title,
-				});
+			// Parse the window folder data
+			const windowData = JSON.parse(chromeWindowNode.title) as WindowFolderData;
+			if (!windowData) continue;
 
-				window.items.push(tab);
-				continue;
-			}
+			// Create a new window
+			const window = new Window(windowData.index);
 
-			// If the item is a folder, create a tab group
-			if (chromeWindowItemNode.children) {
-				const tabGroupData = JSON.parse(chromeWindowItemNode.title) as TabGroupFolderData;
-				if (!tabGroupData) continue;
-
-				const tabGroup = new TabGroup({
-					color: tabGroupData.color,
-					title: tabGroupData.title === BOOKMARKS_EMPTY_TAB_GROUP_TITLE ? undefined : tabGroupData.title
-				});
-
-				// Process the tabs in the tab group
-				for (const chromeWindowItemChildNode of chromeWindowItemNode.children) {
-					if (!chromeWindowItemChildNode.url) continue;
-
+			// Process the window items
+			for (const chromeWindowItemNode of chromeWindowNode.children) {
+				// If the item is a bookmark, create a tab
+				if (chromeWindowItemNode.url) {
 					const tab = new Tab({
-						url: chromeWindowItemChildNode.url,
-						title: chromeWindowItemChildNode.title,
+						url: chromeWindowItemNode.url,
+						title: chromeWindowItemNode.title
 					});
-					tabGroup.tabs.push(tab);
+
+					window.items.push(tab);
+					continue;
 				}
 
-				console.log('Tab group has tabs:', tabGroup.tabs.length);
-				window.items.push(tabGroup);
-				continue;
+				// If the item is a folder, create a tab group
+				if (chromeWindowItemNode.children) {
+					const tabGroupData = JSON.parse(chromeWindowItemNode.title) as TabGroupFolderData;
+					if (!tabGroupData) continue;
+
+					const tabGroup = new TabGroup({
+						color: tabGroupData.color,
+						title: tabGroupData.title === BOOKMARKS_EMPTY_TAB_GROUP_TITLE ? undefined : tabGroupData.title
+					});
+
+					// Process the tabs in the tab group
+					for (const chromeWindowItemChildNode of chromeWindowItemNode.children) {
+						if (!chromeWindowItemChildNode.url) continue;
+
+						const tab = new Tab({
+							url: chromeWindowItemChildNode.url,
+							title: chromeWindowItemChildNode.title
+						});
+						tabGroup.tabs.push(tab);
+					}
+
+					// Add the tab group to the window
+					window.items.push(tabGroup);
+					continue;
+				}
 			}
+
+			// Add the window to the window group
+			windowGroup.windows.push(window);
 		}
 
-		// Add the window to the window group
-		windowGroup.windows.push(window);
+		// Sort the windows by index
+		windowGroup.windows.sort((a, b) => a.index - b.index);
+		// Add the window group to the window groups
+		windowGroups.push(windowGroup);
 	}
 
-	return windowGroup;
+	return windowGroups;
 }
 
 export async function bookmarkWindows(windowGroup: WindowGroup) {
-	// Find or create the root folder
-	let chromeWindowsRootResults = await chrome.bookmarks.search({ title: BOOKMARKS_ROOT_NAME });
-	let chromeWindowsRoot = chromeWindowsRootResults.find((n) => !n.url && n.title === BOOKMARKS_ROOT_NAME);
-
-	// Clear the root folder if it exists
-	if (chromeWindowsRoot) await chrome.bookmarks.removeTree(chromeWindowsRoot.id);
+	// Find the root folder
+	let chromeBookmarksRootResults = await chrome.bookmarks.search({ title: BOOKMARKS_ROOT_NAME });
+	let chromeBookmarksRoot = chromeBookmarksRootResults.find((n) => !n.url && n.title === BOOKMARKS_ROOT_NAME);
 
 	// Create the root folder if it doesn't exist
-	chromeWindowsRoot = await chrome.bookmarks.create({ title: BOOKMARKS_ROOT_NAME });
-	if (!chromeWindowsRoot.id) throw new Error('Failed to create root folder');
+	if (chromeBookmarksRoot == null) {
+		chromeBookmarksRoot = await chrome.bookmarks.create({ title: BOOKMARKS_ROOT_NAME });
+		if (!chromeBookmarksRoot.id) throw new Error('Failed to create root folder');
+	}
+
+	// Find the window folder
+	let chromeDayFolderNodes = await chrome.bookmarks.getChildren(chromeBookmarksRoot.id);
+	let chromeDayFolderName = new Date().toISOString().slice(0, 10);
+	let chromeDayFolder = chromeDayFolderNodes.find((n) => !n.url && n.title === chromeDayFolderName);
+
+	// Clear the window folder if it exists and create a new one
+	if (chromeDayFolder) await chrome.bookmarks.removeTree(chromeDayFolder.id);
+	chromeDayFolder = await chrome.bookmarks.create({ parentId: chromeBookmarksRoot.id, title: chromeDayFolderName });
 
 	// Process each window in the window group
 	for (const window of windowGroup.windows) {
 		// Create window folder with JSON title
 		const windowFolderData: WindowFolderData = {
 			type: 'window',
-			index: window.id
+			index: window.index
 		};
 
 		const windowFolder = await chrome.bookmarks.create({
-			parentId: chromeWindowsRoot.id,
+			parentId: chromeDayFolder.id,
 			title: JSON.stringify(windowFolderData)
 		});
 		if (!windowFolder.id) throw new Error('Failed to create window folder');
@@ -287,7 +308,7 @@ export async function openWindows(windowGroup: WindowGroup) {
 			chromeEmptyTab = undefined;
 			// Return the created tab
 			return chromeTab;
-		}
+		};
 
 		for (const item of window.items) {
 			if (item instanceof Tab) {
@@ -320,6 +341,24 @@ export async function openWindows(windowGroup: WindowGroup) {
 				continue;
 			}
 		}
+	}
+}
+
+export async function pruneWindows(count: number) {
+	// Find the root folder
+	let chromeBookmarksRootResults = await chrome.bookmarks.search({ title: BOOKMARKS_ROOT_NAME });
+	let chromeBookmarksRoot = chromeBookmarksRootResults.find((n) => !n.url && n.title === BOOKMARKS_ROOT_NAME);
+	if (!chromeBookmarksRoot) return;
+
+	// Find the day folders
+	let chromeDayFolderNodes = await chrome.bookmarks.getChildren(chromeBookmarksRoot.id);
+
+	// Sort the folders by date
+	chromeDayFolderNodes.sort((a, b) => (b.dateAdded ?? 0) - (a.dateAdded ?? 0));
+
+	// Prune the folders
+	for (let i = count; i < chromeDayFolderNodes.length; i++) {
+		await chrome.bookmarks.removeTree(chromeDayFolderNodes[i].id);
 	}
 }
 

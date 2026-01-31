@@ -3,9 +3,11 @@ export interface Queryable {
 }
 
 export class WindowGroup implements Queryable {
+	name: string;
 	windows: Window[];
 
-	constructor() {
+	constructor(name: string) {
+		this.name = name;
 		this.windows = [];
 	}
 
@@ -18,11 +20,11 @@ export class WindowGroup implements Queryable {
 }
 
 export class Window implements Queryable {
-	id: number;
+	index: number;
 	items: (Tab | TabGroup)[];
 
-	constructor(id: number) {
-		this.id = id;
+	constructor(index: number) {
+		this.index = index;
 		this.items = [];
 	}
 
@@ -42,14 +44,7 @@ export class Tab implements Queryable {
 	title?: string;
 	icon?: string;
 
-	constructor(options: {
-		id?: number;
-		windowId?: number;
-		groupId?: number;
-		url?: string;
-		title?: string;
-		icon?: string;
-	}) {
+	constructor(options: { id?: number; windowId?: number; groupId?: number; url?: string; title?: string; icon?: string }) {
 		this.id = options.id;
 		this.windowId = options.windowId;
 		this.groupId = options.groupId;
