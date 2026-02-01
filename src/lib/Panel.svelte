@@ -14,7 +14,8 @@
 		bookmarkWindows,
 		subscribeOpenedWindows,
 		unsubscribeOpenedWindows,
-		syncWindows
+		syncWindows,
+		pruneWindows
 	} from '$lib/core/chrome';
 	import type { WindowGroup } from '$lib/core/types';
 
@@ -102,12 +103,8 @@
 			await setSyncEnabled(!windowsSyncEnabled);
 			// Get the new sync enabled state
 			windowsSyncEnabled = await getSyncEnabled();
-
 			// Sync the windows if sync is enabled
-			if (windowsSyncEnabled) {
-				console.log('Syncing windows');
-				await syncWindows();
-			}
+			if (windowsSyncEnabled) await syncWindows();
 		} catch (e) {
 			error = String(e);
 		}

@@ -136,8 +136,6 @@ export async function getBookmarkedWindows(): Promise<WindowGroup[]> {
 		// Create a new window group
 		const windowGroup = new WindowGroup(chromeDayNode.title);
 
-		console.log('chromeDayNode', chromeDayNode);
-
 		// Each child folder represents a stored window
 		for (const chromeWindowNode of chromeDayNode.children ?? []) {
 			// Skip bookmarks at the root level (only folders are windows)
