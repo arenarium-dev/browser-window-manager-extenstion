@@ -81,6 +81,7 @@ class TabGroup {
 const BOOKMARKS_ROOT_NAME = "TabManager";
 const BOOKMARKS_EMPTY_TAB_GROUP_TITLE = "Untitled";
 const BOOKMARKS_EMPTY_TAB_GROUP_COLOR = "grey";
+const STORAGE_SYNC_KEY = "syncEnabled";
 async function getOpenedWindows() {
   let windowGroup = new WindowGroup("");
   let chromeWindows = await chrome.windows.getAll({ populate: true });
@@ -199,7 +200,7 @@ const PRUNE_COUNT = 10;
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name === SYNC_ALARM_NAME) {
     try {
-      const syncEnabled = await chrome.storage.local.get("syncEnabled");
+      const syncEnabled = await chrome.storage.local.get(STORAGE_SYNC_KEY);
       if (!syncEnabled.syncEnabled) return;
       await syncWindows();
       await pruneWindows(PRUNE_COUNT);

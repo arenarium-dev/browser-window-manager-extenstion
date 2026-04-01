@@ -14,8 +14,7 @@
 		bookmarkWindows,
 		subscribeOpenedWindows,
 		unsubscribeOpenedWindows,
-		syncWindows,
-		pruneWindows
+		syncWindows
 	} from '$lib/core/chrome';
 	import type { WindowGroup } from '$lib/core/types';
 
@@ -47,9 +46,7 @@
 				setTimeout(() => searchInput?.focus(), 0);
 
 				// Subscribe to chrome events
-				subscribeOpenedWindows(async () => {
-					windowsOpened = await getOpenedWindows();
-				});
+				subscribeOpenedWindows(onChange);
 			} catch (e) {
 				// Set error
 				error = String(e);
@@ -62,9 +59,7 @@
 
 	onDestroy(() => {
 		// Unsubscribe from chrome events
-		unsubscribeOpenedWindows(async () => {
-			windowsOpened = await getOpenedWindows();
-		});
+		unsubscribeOpenedWindows(onChange);
 	});
 
 	async function onOpen() {
@@ -72,14 +67,23 @@
 		if (!windowsBookmarked) return;
 
 		try {
+			// Unsubscribe from chrome events
+			unsubscribeOpenedWindows(onChange);
+
 			// Get the last stored window
 			const lastWindowGroup = windowsBookmarked.at(-1);
 			if (!lastWindowGroup) return;
 
 			// Open the stored windows
 			await openWindows(lastWindowGroup);
+
+			// Refresh opened windows after change
+			windowsOpened = await getOpenedWindows();
 		} catch (e) {
 			error = String(e);
+		} finally {
+			// Subscribe to chrome events again
+			subscribeOpenedWindows(onChange);
 		}
 	}
 
@@ -105,6 +109,15 @@
 			windowsSyncEnabled = await getSyncEnabled();
 			// Sync the windows if sync is enabled
 			if (windowsSyncEnabled) await syncWindows();
+		} catch (e) {
+			error = String(e);
+		}
+	}
+
+	async function onChange() {
+		try {
+			// Refresh opened windows after change
+			windowsOpened = await getOpenedWindows();
 		} catch (e) {
 			error = String(e);
 		}

@@ -1,10 +1,10 @@
 import { WindowGroup, Window, TabGroup, Tab } from './types';
 
-const BOOKMARKS_ROOT_NAME = 'TabManager';
-const BOOKMARKS_EMPTY_TAB_GROUP_TITLE = 'Untitled';
-const BOOKMARKS_EMPTY_TAB_GROUP_COLOR = 'grey';
+export const BOOKMARKS_ROOT_NAME = 'TabManager';
+export const BOOKMARKS_EMPTY_TAB_GROUP_TITLE = 'Untitled';
+export const BOOKMARKS_EMPTY_TAB_GROUP_COLOR = 'grey';
 
-const STORAGE_SYNC_KEY = 'syncEnabled';
+export const STORAGE_SYNC_KEY = 'syncEnabled';
 
 interface WindowFolderData {
 	type: 'window';

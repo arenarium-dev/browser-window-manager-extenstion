@@ -1,4 +1,4 @@
-import { syncWindows, pruneWindows } from '../lib/core/chrome';
+import { syncWindows, pruneWindows, STORAGE_SYNC_KEY } from '../lib/core/chrome';
 
 const SYNC_ALARM_NAME = 'syncWindows';
 const SYNC_INTERVAL_MINUTES = 10;
@@ -11,7 +11,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 	if (alarm.name === SYNC_ALARM_NAME) {
 		try {
 			// Check if sync is enabled
-			const syncEnabled = await chrome.storage.local.get('syncEnabled');
+			const syncEnabled = await chrome.storage.local.get(STORAGE_SYNC_KEY);
 			if (!syncEnabled.syncEnabled) return;
 
 			// Sync the windows
