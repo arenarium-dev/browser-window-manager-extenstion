@@ -1,6 +1,6 @@
 import { WindowGroup, Window, TabGroup, Tab } from './types';
 
-export const BOOKMARKS_ROOT_NAME = 'TabManager';
+export const BOOKMARKS_ROOT_NAME = '[BROWSER_WINDOW_MANAGER]';
 export const BOOKMARKS_EMPTY_TAB_GROUP_TITLE = 'Untitled';
 export const BOOKMARKS_EMPTY_TAB_GROUP_COLOR = 'grey';
 
