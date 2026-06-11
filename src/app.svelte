@@ -1,7 +1,7 @@
 <script lang="ts">
-	import Panel from './lib/Panel.svelte';
+	import Main from './lib/Main.svelte';
 </script>
 
 <main>
-	<Panel />
+	<Main />
 </main>

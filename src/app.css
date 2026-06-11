@@ -3,9 +3,11 @@
 :root {
 	/* Monokai-inspired palette */
 	--bg-primary: #1e2020;
-	--bg-secondary: #272822;
-	--bg-tertiary: #3e3d32;
+	--bg-secondary: #282828;
+	--bg-tertiary: #565656;
 	--bg-hover: #49483e;
+
+	--border: #353636;
 
 	--text-primary: #f8f8f2;
 	--text-secondary: #a6a69c;
@@ -62,6 +64,15 @@ body {
 	color: var(--text-primary);
 	width: var(--app-width);
 	height: var(--app-height);
+}
+
+button {
+	background: none;
+	border: none;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 /* Global utility */

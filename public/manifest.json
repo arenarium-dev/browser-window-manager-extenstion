@@ -3,10 +3,10 @@
 	"manifest_version": 3,
 	"name": " ",
 	"version": "1.0.0",
-	"description": "View and store your windows, tabs, and tab groups in bookmarks",
+	"description": "View and store your windows, tabs, and tab groups as workspaces, stored in bookmarks",
 	"permissions": ["bookmarks", "tabs", "tabGroups", "sidePanel", "alarms", "storage"],
 	"action": {
-		"default_title": "Window Manager"
+		"default_title": "Workspaces"
 	},
 	"side_panel": {
 		"default_path": "index.html"
