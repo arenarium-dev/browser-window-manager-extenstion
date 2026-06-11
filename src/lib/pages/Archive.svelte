@@ -112,7 +112,7 @@
 	{:else}
 		{#key windowsBookmarked}
 			{#each windowsBookmarked ?? [] as windowGroup}
-				<WindowGroupNode group={windowGroup} title="Bookmarked" query={searchQuery} />
+				<WindowGroupNode group={windowGroup} icon="bookmark" accent="var(--accent-yellow)" query={searchQuery} />
 			{/each}
 		{/key}
 	{/if}

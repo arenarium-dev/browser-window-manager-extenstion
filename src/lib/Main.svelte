@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Icon from '$lib/components/icon/Icon.svelte';
-	import ActivePage from '$lib/pages/ActivePage.svelte';
-	import ArchivePage from '$lib/pages/ArchivePage.svelte';
+	import Workspace from '$lib/pages/Workspace.svelte';
+	import Archive from '$lib/pages/Archive.svelte';
 
 	let archiveOpen = $state(false);
 </script>
@@ -9,9 +9,9 @@
 <main>
 	<div class="content">
 		{#if archiveOpen}
-			<ArchivePage onClose={() => (archiveOpen = false)} />
+			<Archive onClose={() => (archiveOpen = false)} />
 		{:else}
-			<ActivePage />
+			<Workspace />
 		{/if}
 	</div>
 	<footer class="footer">

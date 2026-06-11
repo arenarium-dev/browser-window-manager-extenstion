@@ -7,21 +7,11 @@
 
 	interface Props {
 		group: WindowGroup;
-		title: 'Opened' | 'Bookmarked';
+		icon: string;
+		accent: string;
 		query: string;
 	}
 	let props: Props = $props();
-
-	let accent = $derived.by(() => {
-		switch (props.title) {
-			case 'Opened':
-				return 'var(--accent-green)';
-			case 'Bookmarked':
-				return 'var(--accent-yellow)';
-			default:
-				return 'var(--accent-blue)';
-		}
-	});
 
 	// Collapsed
 	let collapsed = $state(false);
@@ -43,17 +33,12 @@
 	}
 </script>
 
-<div class="group" class:collapsed class:hidden={!visibleContentExists} style="--accent: {accent};">
+<div class="group" class:collapsed class:hidden={!visibleContentExists} style="--accent: {props.accent};">
 	<button class="header" onclick={onToggle}>
 		<div class="icon">
-			{#if props.title === 'Opened'}
-				<Icon name="dock_to_left" size={16} />
-			{/if}
-			{#if props.title === 'Bookmarked'}
-				<Icon name="bookmark" size={16} />
-			{/if}
+			<Icon name={props.icon} size={16} />
 		</div>
-		<span class="label">{props.title} {props.group.name}</span>
+		<span class="label">{props.group.name}</span>
 		<div class="icon chevron">
 			<Icon name="keyboard_arrow_down" size={16} />
 		</div>
@@ -71,6 +56,7 @@
 		width: 100%;
 		display: flex;
 		flex-direction: column;
+		flex-shrink: 0;
 		align-items: stretch;
 		border: 2px solid var(--accent);
 		border-radius: var(--radius-md);

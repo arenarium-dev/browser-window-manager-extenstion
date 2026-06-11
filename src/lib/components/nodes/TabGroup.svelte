@@ -59,6 +59,7 @@
 	.group {
 		display: flex;
 		flex-direction: column;
+		flex-shrink: 0;
 		align-items: start;
 		gap: var(--spacing-xs);
 		user-select: none;

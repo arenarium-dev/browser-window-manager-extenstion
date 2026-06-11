@@ -51,7 +51,7 @@
 	{:else}
 		{#key windowsOpened}
 			{#if windowsOpened}
-				<WindowGroupNode group={windowsOpened} title="Opened" query="" />
+				<WindowGroupNode group={windowsOpened} icon="dock_to_left" accent="var(--accent-blue)" query="" />
 			{/if}
 		{/key}
 	{/if}

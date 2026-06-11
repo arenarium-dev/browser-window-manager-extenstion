@@ -12,6 +12,14 @@ export default defineConfig({
 		}
 	},
 	build: {
-		emptyOutDir: true
+		emptyOutDir: false,
+		rollupOptions: {
+			output: {
+				// exports: 'none',
+				entryFileNames: `[name].js`,
+				chunkFileNames: `[name].js`,
+				assetFileNames: `[name].[ext]`
+			}
+		}
 	}
 }) as UserConfig;
