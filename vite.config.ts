@@ -12,6 +12,6 @@ export default defineConfig({
 		}
 	},
 	build: {
-		emptyOutDir: false
+		emptyOutDir: true
 	}
 }) as UserConfig;

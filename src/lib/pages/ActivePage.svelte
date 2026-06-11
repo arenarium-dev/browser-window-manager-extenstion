@@ -59,17 +59,18 @@
 
 <style>
 	.tree {
-		height: 100%;
-		margin-bottom: 48px;
+		width: 100%;
 		flex-grow: 1;
 		display: flex;
 		flex-direction: column;
 		align-items: start;
 		gap: var(--spacing-md);
-		padding: var(--spacing-md);
+		padding: var(--spacing-sm);
 	}
 
 	.loading {
+		width: 100%;
+		height: 100%;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -77,7 +78,6 @@
 		gap: var(--spacing-md);
 		padding: var(--spacing-xl);
 		color: var(--text-muted);
-		height: 200px;
 
 		.spinner {
 			width: 32px;
@@ -91,6 +91,7 @@
 
 	.empty {
 		width: 100%;
+		height: 100%;
 		display: flex;
 		flex-direction: column;
 		align-items: center;

@@ -45,7 +45,6 @@
 
 		await chrome.tabs.update(id, { active: true });
 		await chrome.windows.update(windowId, { focused: true });
-		window.close();
 	}
 </script>
 
@@ -57,7 +56,7 @@
 	{/if}
 	<span class="title" title="{props.tab.title}\n{props.tab.url}">
 		{#if typeof titleContent === 'string'}
-			<span>{titleContent}</span>
+			{titleContent}
 		{:else}
 			<span>{titleContent.before}</span>
 			<span class="highlight">{titleContent.match}</span>
@@ -68,13 +67,14 @@
 
 <style>
 	.tab {
+		width: 100%;
 		display: flex;
 		align-items: center;
+		text-align: start;
 		gap: var(--spacing-sm);
 		user-select: none;
 		padding: var(--spacing-xs) var(--spacing-lg);
 		padding-left: var(--spacing-sm);
-		background-color: var(--bg-secondary);
 		border-radius: var(--radius-md);
 		border: none;
 		cursor: pointer;
@@ -89,12 +89,13 @@
 		}
 
 		.title {
+			width: 100%;
 			flex: 1;
+			color: var(--text-secondary);
+			font-size: 16px;
 			white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;
-			color: var(--text-secondary);
-			font-size: 12px;
 
 			.highlight {
 				background: rgba(230, 219, 116, 0.3);

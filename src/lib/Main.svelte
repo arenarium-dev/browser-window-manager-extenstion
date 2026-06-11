@@ -6,66 +6,74 @@
 	let archiveOpen = $state(false);
 </script>
 
-<div class="container">
-	{#if archiveOpen}
-		<ArchivePage onClose={() => (archiveOpen = false)} />
-	{:else}
-		<ActivePage />
-	{/if}
-
+<main>
+	<div class="content">
+		{#if archiveOpen}
+			<ArchivePage onClose={() => (archiveOpen = false)} />
+		{:else}
+			<ActivePage />
+		{/if}
+	</div>
 	<footer class="footer">
 		<div class="windows"></div>
 		<button class="archive" class:enabled={archiveOpen} onclick={() => (archiveOpen = !archiveOpen)} aria-pressed={archiveOpen} title="Archive">
 			<Icon name="archive" size={20} />
 		</button>
 	</footer>
-</div>
+</main>
 
 <style>
-	.container {
-		display: flex;
-		flex-direction: column;
+	main {
+		position: absolute;
 		width: var(--app-width);
 		height: var(--app-height);
-	}
-
-	.footer {
-		position: fixed;
-		bottom: 0;
-		left: 0;
-		width: 100%;
-		height: 48px;
 		display: flex;
-		justify-content: start;
-		align-items: center;
-		background: var(--bg-primary);
-		border: 1px solid var(--border);
-		border-radius: 8px;
-		padding: 8px;
+		flex-direction: column;
 
-		.windows {
+		.content {
+			/*width: 100%;*/
+			height: 100%;
 			flex-grow: 1;
+			margin-right: 6px;
+			overflow-y: auto;
+			overflow-x: hidden;
 		}
 
-		.archive {
+		.footer {
+			width: 100%;
+			height: 48px;
 			display: flex;
+			justify-content: start;
 			align-items: center;
-			justify-content: center;
-			width: 28px;
-			height: 28px;
-			color: var(--text-secondary);
-			background: transparent;
-			border: none;
+			background: var(--bg-primary);
+			border: 1px solid var(--border);
 			border-radius: 8px;
-			cursor: pointer;
-			transition:
-				background var(--transition-fast),
-				color var(--transition-fast);
+			padding: 8px;
 
-			&:hover,
-			&.enabled {
-				background: var(--bg-tertiary);
-				color: var(--text-primary);
+			.windows {
+				flex-grow: 1;
+			}
+
+			.archive {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 28px;
+				height: 28px;
+				color: var(--text-secondary);
+				background: transparent;
+				border: none;
+				border-radius: 8px;
+				cursor: pointer;
+				transition:
+					background var(--transition-fast),
+					color var(--transition-fast);
+
+				&:hover,
+				&.enabled {
+					background: var(--bg-tertiary);
+					color: var(--text-primary);
+				}
 			}
 		}
 	}
@@ -76,7 +84,6 @@
 
 	::-webkit-scrollbar-track {
 		background: transparent;
-		border-left: 1px solid var(--bg-tertiary);
 	}
 
 	::-webkit-scrollbar-thumb {

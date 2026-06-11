@@ -35,7 +35,7 @@
 <div class="window" class:collapsed class:hidden={!visibleContentExists}>
 	<button class="header" onclick={onToggle}>
 		<div class="icon">
-			<Icon name="window" size={16} />
+			<Icon name="tabs" size={16} />
 		</div>
 		<span class="label">{`Window ${props.window.index}`}</span>
 		<div class="icon chevron">
