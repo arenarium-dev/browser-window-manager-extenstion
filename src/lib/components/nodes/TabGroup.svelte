@@ -55,7 +55,7 @@
 	</div>
 </div>
 
-<style lang="less">
+<style>
 	.group {
 		display: flex;
 		flex-direction: column;

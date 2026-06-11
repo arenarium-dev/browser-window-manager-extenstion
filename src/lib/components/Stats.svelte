@@ -17,7 +17,7 @@
 	<span class="label">{tabs ? 'tab' + (tabs > 1 ? 's' : '') : ''}</span>
 </div>
 
-<style lang="less">
+<style>
 	.stats {
 		color: var(--text-muted);
 		display: grid;

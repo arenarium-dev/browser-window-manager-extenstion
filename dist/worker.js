@@ -78,7 +78,7 @@ class TabGroup {
     return this.tabs.some((tab) => tab.matches(lowerQuery));
   }
 }
-const BOOKMARKS_ROOT_NAME = "TabManager";
+const BOOKMARKS_ROOT_NAME = "[BROWSER_WINDOW_MANAGER]";
 const BOOKMARKS_EMPTY_TAB_GROUP_TITLE = "Untitled";
 const BOOKMARKS_EMPTY_TAB_GROUP_COLOR = "grey";
 const STORAGE_SYNC_KEY = "syncEnabled";

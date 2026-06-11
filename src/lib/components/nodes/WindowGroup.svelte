@@ -66,7 +66,7 @@
 	</div>
 </div>
 
-<style lang="less">
+<style>
 	.group {
 		width: 100%;
 		display: flex;

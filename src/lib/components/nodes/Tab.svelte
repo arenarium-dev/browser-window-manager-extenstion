@@ -66,7 +66,7 @@
 	</span>
 </button>
 
-<style lang="less">
+<style>
 	.tab {
 		display: flex;
 		align-items: center;

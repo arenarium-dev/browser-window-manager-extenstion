@@ -55,7 +55,7 @@
 	</div>
 </div>
 
-<style lang="less">
+<style>
 	.window {
 		width: 100%;
 		display: flex;

@@ -170,7 +170,7 @@
 	</div>
 </div>
 
-<style lang="less">
+<style>
 	.container {
 		display: flex;
 		flex-direction: column;
@@ -187,8 +187,8 @@
 		justify-content: space-between;
 		gap: var(--spacing-sm);
 		padding: 0 var(--spacing-md);
-		background-color: var(--bg-secondary);
-		border-bottom: 2px solid var(--bg-tertiary);
+		/*background-color: var(--bg-secondary);
+		border-bottom: 2px solid var(--bg-tertiary);*/
 
 		.icon {
 			display: flex;
