@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig, type UserConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import path from 'path';
 
@@ -11,6 +11,6 @@ export default defineConfig({
 		}
 	},
 	build: {
-		emptyOutDir: false,
+		emptyOutDir: false
 	}
-});
+}) as UserConfig;

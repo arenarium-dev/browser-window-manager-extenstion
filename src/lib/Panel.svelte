@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
 
-	import { Search, SquareX, Download, Upload, RefreshCw } from 'lucide-svelte';
+	import Icon from '$lib/components/icon/Icon.svelte';
 
 	import WindowGroupNode from '$lib/components/nodes/WindowGroup.svelte';
 
@@ -127,18 +127,18 @@
 <div class="container">
 	<header class="header">
 		<div class="icon">
-			<Search size={16} />
+			<Icon name="search" size={16} />
 		</div>
 		<input bind:this={searchInput} bind:value={searchQuery} type="text" class="search" placeholder="Search..." />
 		<div class="actions">
 			<button class="button" onclick={onOpen} title="Open bookmarked windows">
-				<Upload size={16} />
+				<Icon name="upload" size={16} />
 			</button>
 			<button class="button" onclick={onSave} title="Bookmark opened windows">
-				<Download size={16} />
+				<Icon name="download" size={16} />
 			</button>
 			<button class="button" onclick={onSync} class:enabled={windowsSyncEnabled} title="Sync opened to bookmarks periodically">
-				<RefreshCw size={16} />
+				<Icon name="refresh" size={16} />
 			</button>
 		</div>
 	</header>
@@ -151,7 +151,7 @@
 			</div>
 		{:else if error}
 			<div class="empty">
-				<SquareX class="icon" size={48} />
+				<Icon name="close" size={48} />
 				<span>Failed to load tabs</span>
 				<small>{error}</small>
 			</div>

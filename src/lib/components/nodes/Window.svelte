@@ -2,7 +2,7 @@
 	import TabNode from './Tab.svelte';
 	import TabGroupNode from './TabGroup.svelte';
 
-	import { ChevronDown, AppWindow } from 'lucide-svelte';
+	import Icon from '$lib/components/icon/Icon.svelte';
 
 	import { Window, Tab, TabGroup } from '$lib/core/types';
 
@@ -35,11 +35,11 @@
 <div class="window" class:collapsed class:hidden={!visibleContentExists}>
 	<button class="header" onclick={onToggle}>
 		<div class="icon">
-			<AppWindow size={16} />
+			<Icon name="window" size={16} />
 		</div>
 		<span class="label">{`Window ${props.window.index}`}</span>
 		<div class="icon chevron">
-			<ChevronDown size={16} />
+			<Icon name="keyboard_arrow_down" size={16} />
 		</div>
 	</button>
 

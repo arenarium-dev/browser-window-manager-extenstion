@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Globe } from 'lucide-svelte';
+	import Icon from '$lib/components/icon/Icon.svelte';
 
 	import type { Tab } from '$lib/core/types';
 
@@ -53,7 +53,7 @@
 	{#if faviconValid && !faviconError}
 		<img class="favicon" src={props.tab.icon} alt="" onerror={() => (faviconError = true)} />
 	{:else}
-		<Globe size={16} color="var(--text-secondary)" />
+		<Icon name="globe" size={16} color="var(--text-secondary)" />
 	{/if}
 	<span class="title" title="{props.tab.title}\n{props.tab.url}">
 		{#if typeof titleContent === 'string'}

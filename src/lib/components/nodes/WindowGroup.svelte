@@ -1,7 +1,7 @@
 <script lang="ts">
 	import WindowNode from './Window.svelte';
 
-	import { ChevronDown, PanelsTopLeft, Star } from 'lucide-svelte';
+	import Icon from '$lib/components/icon/Icon.svelte';
 
 	import { WindowGroup } from '$lib/core/types';
 
@@ -47,15 +47,15 @@
 	<button class="header" onclick={onToggle}>
 		<div class="icon">
 			{#if props.title === 'Opened'}
-				<PanelsTopLeft size={16} />
+				<Icon name="dock_to_left" size={16} />
 			{/if}
 			{#if props.title === 'Bookmarked'}
-				<Star size={16} />
+				<Icon name="bookmark" size={16} />
 			{/if}
 		</div>
 		<span class="label">{props.title} {props.group.name}</span>
 		<div class="icon chevron">
-			<ChevronDown size={16} />
+			<Icon name="keyboard_arrow_down" size={16} />
 		</div>
 	</button>
 

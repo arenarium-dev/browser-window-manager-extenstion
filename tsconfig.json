@@ -1,4 +1,39 @@
 {
-	"files": [],
-	"references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }]
+	"compilerOptions": {
+		// Environment setup & latest features
+		"lib": ["ESNext", "DOM"],
+		"types": ["svelte", "vite/client", "chrome"],
+		"target": "ESNext",
+		"module": "Preserve",
+		"moduleDetection": "force",
+		"esModuleInterop": true,
+
+		// Bundler mode
+		"moduleResolution": "bundler",
+		"allowImportingTsExtensions": true,
+		"verbatimModuleSyntax": true,
+		"noEmit": true,
+
+		// Best practices
+		"strict": true,
+		"skipLibCheck": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitOverride": true,
+
+		// Some stricter flags (disabled by default)
+		"noUnusedLocals": false,
+		"noUnusedParameters": false,
+		"noPropertyAccessFromIndexSignature": false,
+
+		// Declaration
+		"declaration": true,
+		"declarationDir": "dist",
+		"emitDeclarationOnly": true,
+
+		// Enable path aliases.
+		"baseUrl": ".",
+		"paths": {
+			"$lib/*": ["src/lib/*"]
+		}
+	}
 }

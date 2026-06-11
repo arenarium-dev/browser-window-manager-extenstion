@@ -1,7 +1,7 @@
 <script lang="ts">
 	import TabNode from './Tab.svelte';
 
-	import { ChevronDown } from 'lucide-svelte';
+	import Icon from '$lib/components/icon/Icon.svelte';
 
 	import type { TabGroup } from '$lib/core/types';
 
@@ -44,7 +44,7 @@
 		<div class="circle"></div>
 		<span class="label">{props.group.title}</span>
 		<div class="icon chevron">
-			<ChevronDown size={16} />
+			<Icon name="keyboard_arrow_down" size={16} />
 		</div>
 	</button>
 
